@@ -1,0 +1,43 @@
+---
+layout: post
+title: "Isotropic Hashingと線形ハッシュ学習"
+date: 2013-02-23 14:53
+comments: true
+categories: ハッシュ 機械学習
+---
+
+今日は前回に引き続きNIPS2012の論文を紹介します。
+前回紹介した[Super-Bit LSH](/blog/2013/01/26/super-bit-lsh/)はデータ非依存のハッシュ法でしたが、Isotropic Hashing (以下IsoHash)はデータを使った教師なしハッシュ学習です。
+
+Weihao Kong and Wu-Jun Li. [Isotropic Hashing](http://www.cs.sjtu.edu.cn/~liwujun/paper/NIPS12-IsoHash.pdf). NIPS 2012.
+
+IsoHashはPCAHがベースになっています。
+ハッシュの学習ではよく、次元削減してから各次元を正か負かで $\pm1$ に潰す、ということをします[^1]。
+PCAHはこの次元削減としてPCAを用いるというものです。
+非常にお手軽ですが、PCA軸は次元によって情報量に偏りがあるのに等しく1bitずつに潰してしまうので、近傍探索の精度がよくありません。
+そこでIsoHashでは、PCAで次元削減したあとに、偏りがならされるように回転してから潰します。
+偏りの指標としては、データ集合に対する各次元の分散を用います。
+
+[^1]: 事前にデータを平均が0になるように正規化しておくことが多いです。
+
+学習に用いるデータ行列を $X\in\mathbb R^{d\times n}$ とおき、PCAで次元削減する行列を $W\in\mathbb R^{d\times m}$ とおきます。
+このとき、直交行列 $Q\in\mathcal O(m)$ を用いて、 $Q^\top W^\top XX^\top WQ$ の対角成分がすべて等しくなるようにします（対角成分の値はPCAの固有値の平均になります）。
+$Q$ を求めたいですが、IsoHashでは $Q^\top W^\top XX^\top WQ$ という形の行列の集合と、対角成分がすべて等しい行列の集合、の共通部分を求めることにします。
+この問題が解ければ、固有値分解をして $Q$ が取り出せます。
+論文では、2つの集合間を交互に射影するLift and Projectionという方法と、直交群上で対角成分の二乗和誤差を最小化する問題として勾配を用いて解くGradient Flowという方法の2つを提案しています。
+実験を見る限りどっちが優れてるということもないようです。
+
+PCAHを改良した線形ハッシュ学習としては、IsoHashの前にもIterative Quantization (ITQ [^2])という手法が提案されていました。
+ITQでは、 $\pm1$ に潰す前の各次元の値ができるだけ $\pm1$ に近くなるように線形変換を行います。
+この最適化はk-Meansのような感じで線形変換の更新とハッシュ値の更新を交互に行うのですが、ここが重いのが欠点でした。
+IsoHashはITQと精度的には互角ぐらいのようで、かつ学習がそこそこ速い（特にPCAしたあとはデータ数によらない）のが売りのようです。
+
+[^2]: Yunchao Gong and Svetlana Lazebnik.
+    [Iterative Quantization: A Procrustean Approach to Learning Binary Codes](http://www.cs.illinois.edu/homes/slazebni/publications/cvpr11_small_code.pdf).
+    CVPR, 2011.
+
+あれこれ書いた上でちゃぶ台ひっくり返す感じなのですが、各次元の偏りをならす一番お手軽な方法は、ランダム行列をかけるというやり方です。
+ITQの論文ではPCA後にランダム行列をかけてから潰す、という方法も比較してますが、実はこれで結構いい精度が出ちゃいます。
+なので現時点では、Practicalにはランダム行列を使うのが良いかもしれません。
+
+あと、論文に沿ってPCAを使って書いてきましたが、非線形な次元削減の上にも乗っかるはずです。
