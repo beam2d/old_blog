@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[シンキングタイム]]></title>
+  <link href="http://beam2d.github.io/atom.xml" rel="self"/>
+  <link href="http://beam2d.github.io/"/>
+  <updated>2013-09-07T17:56:52+09:00</updated>
+  <id>http://beam2d.github.io/</id>
+  <author>
+    <name><![CDATA[Seiya Tokui]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Isotropic Hashingと線形ハッシュ学習]]></title>
+    <link href="http://beam2d.github.io/blog/2013/02/23/isohash/"/>
+    <updated>2013-02-23T14:53:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/02/23/isohash</id>
+    <content type="html"><![CDATA[<p>今日は前回に引き続きNIPS2012の論文を紹介します。
+前回紹介した<a href="http://beam2d.github.io/blog/2013/01/26/super-bit-lsh/">Super-Bit LSH</a>はデータ非依存のハッシュ法でしたが、Isotropic Hashing (以下IsoHash)はデータを使った教師なしハッシュ学習です。</p>
+
+<p>Weihao Kong and Wu-Jun Li. <a href="http://www.cs.sjtu.edu.cn/~liwujun/paper/NIPS12-IsoHash.pdf">Isotropic Hashing</a>. NIPS 2012.</p>
+
+<!-- more -->
+
+<p>IsoHashはPCAHがベースになっています。
+ハッシュの学習ではよく、次元削減してから各次元を正か負かで $\pm1$ に潰す、ということをします<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>。
+PCAHはこの次元削減としてPCAを用いるというものです。
+非常にお手軽ですが、PCA軸は次元によって情報量に偏りがあるのに等しく1bitずつに潰してしまうので、近傍探索の精度がよくありません。
+そこでIsoHashでは、PCAで次元削減したあとに、偏りがならされるように回転してから潰します。
+偏りの指標としては、データ集合に対する各次元の分散を用います。</p>
+
+<p>学習に用いるデータ行列を $X\in\mathbb R^{d\times n}$ とおき、PCAで次元削減する行列を $W\in\mathbb R^{d\times m}$ とおきます。
+このとき、直交行列 $Q\in\mathcal O(m)$ を用いて、 $Q^\top W^\top XX^\top WQ$ の対角成分がすべて等しくなるようにします（対角成分の値はPCAの固有値の平均になります）。
+$Q$ を求めたいですが、IsoHashでは $Q^\top W^\top XX^\top WQ$ という形の行列の集合と、対角成分がすべて等しい行列の集合、の共通部分を求めることにします。
+この問題が解ければ、固有値分解をして $Q$ が取り出せます。
+論文では、2つの集合間を交互に射影するLift and Projectionという方法と、直交群上で対角成分の二乗和誤差を最小化する問題として勾配を用いて解くGradient Flowという方法の2つを提案しています。
+実験を見る限りどっちが優れてるということもないようです。</p>
+
+<p>PCAHを改良した線形ハッシュ学習としては、IsoHashの前にもIterative Quantization (ITQ <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>)という手法が提案されていました。
+ITQでは、 $\pm1$ に潰す前の各次元の値ができるだけ $\pm1$ に近くなるように線形変換を行います。
+この最適化はk-Meansのような感じで線形変換の更新とハッシュ値の更新を交互に行うのですが、ここが重いのが欠点でした。
+IsoHashはITQと精度的には互角ぐらいのようで、かつ学習がそこそこ速い（特にPCAしたあとはデータ数によらない）のが売りのようです。</p>
+
+<p>あれこれ書いた上でちゃぶ台ひっくり返す感じなのですが、各次元の偏りをならす一番お手軽な方法は、ランダム行列をかけるというやり方です。
+ITQの論文ではPCA後にランダム行列をかけてから潰す、という方法も比較してますが、実はこれで結構いい精度が出ちゃいます。
+なので現時点では、Practicalにはランダム行列を使うのが良いかもしれません。</p>
+
+<p>あと、論文に沿ってPCAを使って書いてきましたが、非線形な次元削減の上にも乗っかるはずです。</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>事前にデータを平均が0になるように正規化しておくことが多いです。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>Yunchao Gong and Svetlana Lazebnik.
+<a href="http://www.cs.illinois.edu/homes/slazebni/publications/cvpr11_small_code.pdf">Iterative Quantization: A Procrustean Approach to Learning Binary Codes</a>.
+CVPR, 2011.<a href="#fnref:2" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Super-Bit LSH]]></title>
+    <link href="http://beam2d.github.io/blog/2013/01/26/super-bit-lsh/"/>
+    <updated>2013-01-26T13:54:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/01/26/super-bit-lsh</id>
+    <content type="html"><![CDATA[<p>今日は、すこし前に読んだSuper-Bit LSH (SB-LSH)という手法を簡単に紹介します。
+これは角類似度<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>に対するランダム射影LSH<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>の改良版です。</p>
+
+<p>Jianqiu Ji, Jianmin Li, Shuicheng Yany, Bo Zhang, Qi Tianz.<br />
+Super-Bit Locality-Sensitive Hashing. NIPS 2012.</p>
+
+<!-- more -->
+
+<p>ランダム射影LSHの解説は<a href="http://blog.jubat.us/2012/05/17-web.html" title="第17回 データマイニング+WEB＠東京で発表しました | Jubatus Blog">海野さんのスライド(29-30ページ目)</a>がわかりやすいです。
+ランダム射影LSHを使うと、角類似度の不偏推定量が得られます。</p>
+
+<p>Super-Bit LSHではこれをNビットごとにグループ分けして、各グループ内の射影ベクトルを直交させるというものです。
+直交化はたとえばGram-Schmidtの直交化法を使います。
+こうすると、推定量の分散がただのランダム射影よりも小さくなるということです。
+論文ではこのNビットのグループをSuper Bitと呼んでいます。</p>
+
+<p>論文中の実験を見る限り、特に直角に近い角度の推定が正確になるようです。
+これは近傍探索に使うときにはあまり問題にならないですが、別の用途で純粋に角度の推定値が欲しい時や、Active Learningに用いるとき<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>には役立ちそうです。</p>
+
+<p>ただ、次元がとても高い場合、ランダムなベクトル同士がほとんど直交する（大数の法則）ので、あまり効果はないかもね、と書かれています。
+論文中の実験ではSIFT特徴量(128次元)とBoVW(3125次元)を使っているようで、これくらいだと有効みたいです。
+また、自然言語処理などでよく事前に次元数がわからない場合がありますが、そういう場合も使えなさそうです。</p>
+
+<p>ランダム射影LSHはLSHの中でもかなり古典的なアルゴリズムですが、データ非依存という設定でその精度が改良されるのはおそらく初めてだと思います（論文中でもそう書かれています）。
+今まではいろんな種類の類似度に対するLSHの開発が盛んでしたが、そろそろ既存のLSHを改良する</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>2つのベクトル $x, y$ に対して $1-{1\over\pi}\cos^{-1}\left({x\cdot y\over\lVert x\lVert\,\lVert y\lVert}\right)\in[0, 1]$ を角類似度(angular similarity)と呼びます。
+Cosine類似度やArccos類似度と呼ばれることもあります。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>SimHash、Cosine LSH、Arccos LSHなどいろんな呼ばれ方をしています。
+論文中ではSRP-LSH (Sign-random-projection LSH) と呼んでいます。<a href="#fnref:2" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p>重みベクトルとできるだけ直交する教師データを選びたいときなど。<a href="#fnref:3" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[初投稿]]></title>
+    <link href="http://beam2d.github.io/blog/2013/01/20/first-post/"/>
+    <updated>2013-01-20T10:33:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/01/20/first-post</id>
+    <content type="html"><![CDATA[<p>Bloggerを使っていたのですが書きづらかったので、Octopressを使ってみました。
+OctopressはWindowsでも割りと簡単でした。
+文字コードで一瞬ハマりましたが、環境変数にLANG=ja_JP.UTF-8を指定したら動きました。
+今のところ良い感じです。</p>
+]]></content>
+  </entry>
+  
+</feed>

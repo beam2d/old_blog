@@ -1,0 +1,275 @@
+
+
+<!doctype html>
+  <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+  <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+  <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+  <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Super-Bit LSH - シンキングタイム</title>
+    <meta name="author" content="Seiya Tokui">
+    
+    <meta name="description" content="Super-Bit LSH Jan 26th, 2013 ハッシュ 機械学習 今日は、すこし前に読んだSuper-Bit LSH (SB-LSH)という手法を簡単に紹介します。
+これは角類似度1に対するランダム射影LSH2の改良版です。 Jianqiu Ji, Jianmin Li, &hellip;">
+    
+    <meta name="viewport" content="width=device-width">
+    
+    <link rel="canonical" href="http://beam2d.github.io/blog/2013/01/26/super-bit-lsh">
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet">
+    <link href="/atom.xml" rel="alternate" title="シンキングタイム" type="application/atom+xml">
+
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [ ['$', '$'] ],
+        displayMath: [ ['$$', '$$']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      messageStyle: "none",
+      "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+    });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+  </head>
+
+
+  <body >
+
+    <header>
+      <div class="grid-wrapper">
+  <div class="grid">
+
+    <div class="grid__item two-fifths lap-four-sixths palm-one-whole">
+  <a href="/" class="site-title">シンキングタイム</a>
+</div>
+
+<div class="grid__item three-fifths lap-two-sixths palm-one-whole">
+  <nav>
+    <input type="checkbox" id="toggle">
+<label for="toggle" class="toggle" data-open="Main Menu" data-close="Close Menu"></label>
+<ul class="menu pull-right">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/">Blog</a></li>
+</ul>
+  </nav>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+    <div class="grid-wrapper">
+      <div class="grid grid-center">
+        
+        <div class="grid__item two-thirds lap-one-whole palm-one-whole">
+        
+
+          <article class="post">
+  <header>
+  
+  <h1 class="title indent">Super-Bit LSH</h1>
+  
+
+  
+  <div class="meta clearfix">
+    
+
+
+
+
+
+
+
+
+  
+
+
+<time class="pull-left" datetime="2013-01-26T13:54:00+09:00" pubdate data-updated="true"><i class="icon-calendar"></i> Jan 26<span>th</span>, 2013</time>
+    
+
+
+
+  
+  <div class="pull-left">
+    <i class="icon-tags"></i>
+    <ul class="tags unstyled">
+    
+      <li><a href="/blog/categories/ハッシュ/">ハッシュ</a></li>
+    
+      <li><a href="/blog/categories/機械学習/">機械学習</a></li>
+    
+    </ul>
+  </div>
+  
+
+    
+  </div>
+  
+</header>
+
+
+
+
+  <p>今日は、すこし前に読んだSuper-Bit LSH (SB-LSH)という手法を簡単に紹介します。
+これは角類似度<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>に対するランダム射影LSH<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>の改良版です。</p>
+
+<p>Jianqiu Ji, Jianmin Li, Shuicheng Yany, Bo Zhang, Qi Tianz.<br />
+Super-Bit Locality-Sensitive Hashing. NIPS 2012.</p>
+
+<!-- more -->
+
+<p>ランダム射影LSHの解説は<a href="http://blog.jubat.us/2012/05/17-web.html" title="第17回 データマイニング+WEB＠東京で発表しました | Jubatus Blog">海野さんのスライド(29-30ページ目)</a>がわかりやすいです。
+ランダム射影LSHを使うと、角類似度の不偏推定量が得られます。</p>
+
+<p>Super-Bit LSHではこれをNビットごとにグループ分けして、各グループ内の射影ベクトルを直交させるというものです。
+直交化はたとえばGram-Schmidtの直交化法を使います。
+こうすると、推定量の分散がただのランダム射影よりも小さくなるということです。
+論文ではこのNビットのグループをSuper Bitと呼んでいます。</p>
+
+<p>論文中の実験を見る限り、特に直角に近い角度の推定が正確になるようです。
+これは近傍探索に使うときにはあまり問題にならないですが、別の用途で純粋に角度の推定値が欲しい時や、Active Learningに用いるとき<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>には役立ちそうです。</p>
+
+<p>ただ、次元がとても高い場合、ランダムなベクトル同士がほとんど直交する（大数の法則）ので、あまり効果はないかもね、と書かれています。
+論文中の実験ではSIFT特徴量(128次元)とBoVW(3125次元)を使っているようで、これくらいだと有効みたいです。
+また、自然言語処理などでよく事前に次元数がわからない場合がありますが、そういう場合も使えなさそうです。</p>
+
+<p>ランダム射影LSHはLSHの中でもかなり古典的なアルゴリズムですが、データ非依存という設定でその精度が改良されるのはおそらく初めてだと思います（論文中でもそう書かれています）。
+今まではいろんな種類の類似度に対するLSHの開発が盛んでしたが、そろそろ既存のLSHを改良する</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>2つのベクトル $x, y$ に対して $1-{1\over\pi}\cos^{-1}\left({x\cdot y\over\lVert x\lVert\,\lVert y\lVert}\right)\in[0, 1]$ を角類似度(angular similarity)と呼びます。
+Cosine類似度やArccos類似度と呼ばれることもあります。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>SimHash、Cosine LSH、Arccos LSHなどいろんな呼ばれ方をしています。
+論文中ではSRP-LSH (Sign-random-projection LSH) と呼んでいます。<a href="#fnref:2" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p>重みベクトルとできるだけ直交する教師データを選びたいときなど。<a href="#fnref:3" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+
+</article>
+
+
+        
+        </div>
+        
+        
+        <aside id="sidebar" class="grid__item one-third lap-one-whole palm-one-whole">
+          <div class="grid">
+
+  
+<section class="social aside-module grid__item one-whole lap-one-half">
+  <h1 class="title delta">
+    Follow me!
+  </h1>
+  <ul class="unstyled">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</section>
+
+
+  <section id="recent-posts" class="aside-module grid__item one-whole lap-one-half">
+  <h1 class="title delta">Recent Posts</h1>
+  <ul class="divided">
+    
+      <li class="post">
+        <a href="/blog/2013/02/23/isohash/">Isotropic Hashingと線形ハッシュ学習</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/26/super-bit-lsh/">Super-Bit LSH</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/20/first-post/">初投稿</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+</div>
+
+        </aside>
+        
+      </div>
+    </div>
+    
+    <footer>
+      <div class="grid-wrapper">
+  <div class="grid">
+    <div class="grid__item">
+      <p class="copyright">
+  All content by Seiya Tokui and licenced under <a href="//creativecommons.org/licenses/by-nc-sa/3.0/ie/">Creative Commons</a>.<br>
+  Code under <a href="//github.com/coogie/oscailte/blob/master/README.md">MIT Licence</a>.
+</p>
+    </div>
+  </div>
+</div>
+
+    </footer>
+
+    <!--[if lt IE 7]>
+      <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+    <![endif]-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+<script defer src="/javascripts/octopress.js"></script>
+
+
+
+
+
+
+
+<script>
+  $(document).ready(function(){
+    if (!window.jXHR){
+      var jxhr = document.createElement('script');
+      jxhr.type = 'text/javascript';
+      jxhr.src = '/javascripts/libs/jXHR.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(jxhr, s);
+    }
+
+    github.showRepos({
+      user: 'beam2d',
+      count: 0,
+      skip_forks: true,
+      target: '#gh_repos'
+    });
+  });
+</script>
+<script src="/javascripts/github.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
