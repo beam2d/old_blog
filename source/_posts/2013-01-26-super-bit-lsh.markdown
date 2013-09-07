@@ -18,6 +18,8 @@ categories: ハッシュ 機械学習
 Jianqiu Ji, Jianmin Li, Shuicheng Yany, Bo Zhang, Qi Tianz.\\
 Super-Bit Locality-Sensitive Hashing. NIPS 2012.
 
+<!-- more -->
+
 ランダム射影LSHの解説は[海野さんのスライド(29-30ページ目)](http://blog.jubat.us/2012/05/17-web.html "第17回 データマイニング+WEB＠東京で発表しました | Jubatus Blog")がわかりやすいです。
 ランダム射影LSHを使うと、角類似度の不偏推定量が得られます。
 

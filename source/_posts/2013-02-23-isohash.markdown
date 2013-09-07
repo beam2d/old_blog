@@ -11,6 +11,8 @@ categories: ハッシュ 機械学習
 
 Weihao Kong and Wu-Jun Li. [Isotropic Hashing](http://www.cs.sjtu.edu.cn/~liwujun/paper/NIPS12-IsoHash.pdf). NIPS 2012.
 
+<!-- more -->
+
 IsoHashはPCAHがベースになっています。
 ハッシュの学習ではよく、次元削減してから各次元を正か負かで $\pm1$ に潰す、ということをします[^1]。
 PCAHはこの次元削減としてPCAを用いるというものです。
