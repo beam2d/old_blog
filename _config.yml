@@ -98,3 +98,9 @@ google_analytics_tracking_id:
 
 # Facebook Like
 facebook_like: true
+
+# Oscailte settings
+social:
+  title: Follow me!
+  github: beam2d
+  twitter: beam2d
