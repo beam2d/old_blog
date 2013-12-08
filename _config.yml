@@ -99,6 +99,9 @@ google_analytics_tracking_id:
 # Facebook Like
 facebook_like: true
 
+# Hatena bookmark
+hatena_bookmark: true
+
 # Oscailte settings
 social:
   title: Follow me!
