@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[シンキングタイム]]></title>
+  <title><![CDATA[@beam2d]]></title>
   <link href="http://beam2d.github.io/atom.xml" rel="self"/>
   <link href="http://beam2d.github.io/"/>
-  <updated>2013-12-08T00:23:50+09:00</updated>
+  <updated>2013-12-08T11:08:09+09:00</updated>
   <id>http://beam2d.github.io/</id>
   <author>
     <name><![CDATA[Seiya Tokui]]></name>
@@ -12,6 +12,67 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Juliaを使ってみた]]></title>
+    <link href="http://beam2d.github.io/blog/2013/09/20/itq-by-julia/"/>
+    <updated>2013-09-20T22:38:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/09/20/itq-by-julia</id>
+    <content type="html"><![CDATA[<p>ブログ遅れちゃいましたが。
+今週のはじめにJuliaで書いたPCA hashとITQの実装を公開しました。</p>
+
+<p><a href="https://github.com/beam2d/julia-pcahash">https://github.com/beam2d/julia-pcahash</a></p>
+
+<p>Juliaというのは数値計算・科学計算がメインターゲットの新しい言語です。
+つい最近触り始めたんですが、今のところ割りと良好です。
+julia-pcahashは勉強用に書きました。</p>
+
+<!-- more -->
+
+<p>Juliaには以下の様な特徴があります（僕の目にぱっとついたところだけで）。</p>
+
+<ul>
+  <li>多次元配列が簡単に扱えて線形代数計算が充実している(MATLABやnumpy/scipyのノリ)</li>
+  <li>文法はMATLABとRubyとPythonを混ぜたような感じ</li>
+  <li>LLVMベースで、JITが走る</li>
+  <li>動的型付けで、型アノテーションや多相型があり、型推論による静的最適化が走る</li>
+  <li>他の科学技術用言語にくらべて数値計算以外の処理が比較的速い</li>
+  <li>Juliaの構文自体をデータ構造として扱えて、マクロが書ける(LISPみたいに<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>)</li>
+</ul>
+
+<p>Juliaでコード書いてみてわかったことが以下のとおり。</p>
+
+<ul>
+  <li>ファイルの読み書きは割りと簡単にできる</li>
+  <li>行列計算はMATLABやnumpy/scipyみたいに書けるが細かい所はいろいろ違う</li>
+  <li>1-originはやっぱり不便</li>
+  <li>マクロが結構便利に見える</li>
+  <li>BitArrayは2階以上でもびっちり詰まっていて、そこを意識しないと性能劣化する</li>
+  <li>引数・戻り値が簡単な型（行列含む）なら、Cのコード呼び出し(ccall)はとても簡単
+    <ul>
+      <li>今回、ハミング距離の計算をSSEでやるコードをCで書いて、それを呼び出した<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></li>
+    </ul>
+  </li>
+  <li>標準ライブラリはまだ痒いところにちょっと手が届かないレベル</li>
+  <li>パッケージは盛んに開発されている雰囲気</li>
+  <li>起動が重い</li>
+</ul>
+
+<p>速度もそこそこ速いように思います。
+そのうちちゃんとC++やPythonと比較したいところ。
+もうちょっと使ってみようと思います。</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>LISP詳しくないですがそういう感じらしいです、homoiconicというらしい。ちなみにJuliaのパーザはSchemeで書かれています。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>Juliaで直接 nnz(x $ y) のように書くこともできますが、Cで書いたSSE4のコードの方が手元の環境では3倍ほど速かった<a href="#fnref:2" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Isotropic Hashingと線形ハッシュ学習]]></title>
