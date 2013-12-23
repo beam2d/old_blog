@@ -11,8 +11,8 @@
     <title>@beam2d</title>
     <meta name="author" content="Seiya Tokui">
     
-    <meta name="description" content="Juliaを使ってみた Sep 20th, 2013 ハッシュ 機械学習 Julia Tweet ブログ遅れちゃいましたが。
-今週のはじめにJuliaで書いたPCA hashとITQの実装を公開しました。 https://github.com/beam2d/julia-pcahash &hellip;">
+    <meta name="description" content="Denoising Autoencoderとその一般化 Dec 23rd, 2013 機械学習 深層学習 Tweet Machine Learning Advenc Calendar 2013の23日目担当の得居です。
+株式会社Preferred &hellip;">
     
     <meta name="viewport" content="width=device-width">
     
@@ -73,6 +73,111 @@
 
           
 
+
+  
+  <article class="listing">
+    <header>
+  
+  <h1 class="beta">
+    <a href="/blog/2013/12/23/dae-and-its-generalization/">Denoising Autoencoderとその一般化</a>
+  </h1>
+  
+
+  
+  <div class="meta clearfix">
+    
+
+
+
+
+
+
+
+
+  
+
+
+<time class="pull-left" datetime="2013-12-23T09:29:00+09:00" pubdate data-updated="true"><i class="icon-calendar"></i> Dec 23<span>rd</span>, 2013</time>
+    
+
+
+
+  
+  <div class="pull-left">
+    <i class="icon-tags"></i>
+    <ul class="tags unstyled">
+    
+      <li><a href="/blog/categories/機械学習/">機械学習</a></li>
+    
+      <li><a href="/blog/categories/深層学習/">深層学習</a></li>
+    
+    </ul>
+  </div>
+  
+
+    
+
+
+<div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization/" data-via="beam2d" data-counturl="http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-url="http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization/" data-size="medium"></div>
+  
+  
+  <div class="fb-like" data-href="http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization/" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
+  
+  
+  <a href="http://b.hatena.ne.jp/entry/http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization/" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+  
+</div>
+
+    
+  </div>
+  
+</header>
+
+
+
+
+<div class="entry-content clearfix">
+  <p><a href="http://qiita.com/advent-calendar/2013/machinelearning">Machine Learning Advenc Calendar 2013</a>の23日目担当の得居です。
+<a href="https://preferred.jp">株式会社Preferred Infrastructure</a>で<a href="http://jubat.us">Jubatus</a>を作ったりしています。</p>
+
+<p>今日は深層学習(deep learning)の話です。
+深層学習はこの2年ほどで専門外の人にも知れ渡るほどに大流行しました。
+データさえ大量にあればテクニック次第で他の手法を圧倒する性能を達成できることから、特に大量のデータを持つ大企業において大々的な参入が相次ぎました。</p>
+
+<p>主に流行っているのは教師あり学習です。
+補助として教師なし学習による事前学習(pretraining)も、特に音声認識のタスクにおいては行われているようですが、画像認識を中心に事前学習なしでもテクニック次第で学習できるという見方が強まっています。</p>
+
+<p>一方で教師なしデータからの学習はブレイクスルー待ちといった雰囲気です。
+Deep Belief NetworksやDeep Boltzmann Machinesなど「無名隠れ変数 (anonymous latent variables)」を用いた生成モデルが先行して詳しく解析されていますが、その学習は教師あり学習のようにはうまくいっていないのが現状です<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>。</p>
+
+<p>今日お話するDenoising Autoencoder (DAE)はそんな教師なし深層学習で用いられる手法・モデルの一つです。
+RBM系の深層生成モデルとは別の系統になりますが、DAEをベースにした確率的な深層モデルの理論が数年遅れて最近発展してきているので、今日はその概要をまとめて書きたいと思います。
+主にPascal VincentとYoshua Bengioによるこの5年間の研究の流れに沿って、以下の様な順に書きます。</p>
+
+<ul>
+  <li>Autoencoderの定式化</li>
+  <li>DAEの定式化とそのオリジナルの解釈</li>
+  <li>DAEのスコアマッチングとしての解釈</li>
+  <li>DAEの確率モデルとしての一般化</li>
+  <li>一般化DAEのためのWalkbackアルゴリズム</li>
+  <li>隠れ変数を入れたさらに一般のモデルとその特徴</li>
+</ul>
+
+<p>分量の割に時間がかかっていないので、説明が変だったりまどろっこしい部分があるかもしれません。
+気づいた点がございましたらぜひ<a href="https://twitter.com/beam2d">@beam2d</a>までお知らせください。</p>
+
+
+  <a class="btn pull-right" href="/blog/2013/12/23/dae-and-its-generalization/">続きを読む &rarr;</a>
+</div>
+
+
+  </article>
+  <hr>
 
   
   <article class="listing">
@@ -439,6 +544,10 @@ OctopressはWindowsでも割りと簡単でした。
   <section id="recent-posts" class="aside-module grid__item one-whole lap-one-half">
   <h1 class="title delta">Recent Posts</h1>
   <ul class="divided">
+    
+      <li class="post">
+        <a href="/blog/2013/12/23/dae-and-its-generalization/">Denoising Autoencoderとその一般化</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/09/20/itq-by-julia/">Juliaを使ってみた</a>
