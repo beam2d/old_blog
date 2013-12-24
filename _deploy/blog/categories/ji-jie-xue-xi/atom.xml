@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 機械学習 | @beam2d]]></title>
   <link href="http://beam2d.github.io/blog/categories/ji-jie-xue-xi/atom.xml" rel="self"/>
   <link href="http://beam2d.github.io/"/>
-  <updated>2013-12-23T22:48:11+09:00</updated>
+  <updated>2013-12-23T23:31:23+09:00</updated>
   <id>http://beam2d.github.io/</id>
   <author>
     <name><![CDATA[Seiya Tokui]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Denoising Autoencoderとその一般化]]></title>
     <link href="http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization/"/>
-    <updated>2013-12-23T09:29:00+09:00</updated>
+    <updated>2013-12-23T22:48:00+09:00</updated>
     <id>http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization</id>
     <content type="html"><![CDATA[<p><a href="http://qiita.com/advent-calendar/2013/machinelearning">Machine Learning Advenc Calendar 2013</a>の23日目担当の得居です。
 <a href="https://preferred.jp">株式会社Preferred Infrastructure</a>で<a href="http://jubat.us">Jubatus</a>を作ったりしています。</p>
@@ -96,7 +96,7 @@ $W’=W^\top$ という制約(tied weights)を置くと性能が良いことが�
 <ul>
   <li><strong>多様体学習</strong>
 高次元空間 $\mathbb R^d$ 上のデータ分布 $\mathcal P(X)$ は低次元多様体に埋まっているとする仮説があります。
-DAEは多様体から少しずれた位置にある $\tilde X$ を多様体上に引き戻すように学習されるので、この体次元多様体を学習していることに相当します。
+DAEは多様体から少しずれた位置にある $\tilde X$ を多様体上に引き戻すように学習されるので、この低次元多様体を学習していることに相当します。
 DAEはさらに、多様体の法線方向へのずれに対してロバストな写像を学習すると考えることができます。
 この考え方はContractive Autoencoderへと受け継がれています[2]。</li>
   <li><strong>生成モデル</strong>
