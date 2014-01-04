@@ -4,6 +4,7 @@ title: "バイアス・バリアンス分解"
 date: 2013-12-28 16:37
 comments: true
 categories: 機械学習
+published: false
 ---
 
 機械学習の文献を読んでいると学習手法のバイアス・バリアンスという話が良く出てきます。
