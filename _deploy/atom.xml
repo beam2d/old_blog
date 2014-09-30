@@ -4,7 +4,7 @@
   <title><![CDATA[@beam2d]]></title>
   <link href="http://beam2d.github.io/atom.xml" rel="self"/>
   <link href="http://beam2d.github.io/"/>
-  <updated>2014-01-05T09:21:57+09:00</updated>
+  <updated>2014-09-30T23:02:54+09:00</updated>
   <id>http://beam2d.github.io/</id>
   <author>
     <name><![CDATA[Seiya Tokui]]></name>
@@ -12,6 +12,107 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[半教師あり学習はドメイン適応か？]]></title>
+    <link href="http://beam2d.github.io/blog/2014/09/30/is-ssl-domain-adaptation/"/>
+    <updated>2014-09-30T22:03:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2014/09/30/is-ssl-domain-adaptation</id>
+    <content type="html"><![CDATA[<p>データがある分布に従う、とはどういうことなんでしょうか。</p>
+
+<p>半教師あり学習は、教師ありデータが少ない時に、いっぱいある教師なしデータを使って汎化性能を上げようという問題です。
+一方、ドメイン適応は、識別したいデータと教師データが異なる分布に従うときに、識別したいデータにおける識別性能を上げようという問題です。</p>
+
+<p>半教師あり学習の設定で、生成モデルを考えます。
+データの分布を適当なモデル $p(x|\theta)$ で推定します。
+ここで $\theta$ はパラメータです。
+事前分布を $p(\theta)$ とします。
+このとき、教師ありデータセット $S$ を観測するとパラメータの事後分布 $p(\theta|S)$ が決まります。
+つまりモデル $\{p(x|\theta)\}_\theta$ の中で $S$ を生成しそうな分布の確率分布が得られます。
+一方、教師なしデータも含めたデータセット $U$ を観測して得られる事後分布 $p(\theta|U)$ は一般に異なる分布です。
+つまり $U$ を生成しそうな分布の確率分布は $S$ のそれとは異なります。</p>
+
+<p>普通、半教師あり学習では i.i.d. なサンプル集合 $S$ と $U$ が同じ分布に従うことを仮定します。
+その仮定を外すと、上記の通り $S$ と $U$ は異なる分布に従うと推定されるように思えます。
+というよりむしろ、これらが異なる分布になるから半教師あり学習をする意味があるんではないかという気さえしてきます。
+$U$ の方がデータが多いわけなので、$p(\theta|U)$ は $p(\theta|S)$ より低分散な分布になると予想されます。
+そこから推定される $p(x)$ は教師ありデータと教師なしデータで異なるはずです。
+例えばベイズっぽく推定するなら $X\in\{S, U\}$ として $p(x|X)=\mathbb E_{\theta|X}p(x|\theta)$ となり、$X=S$ の場合と $X=U$ の場合で異なる分布が得られる（かもしれない）わけです。</p>
+
+<p>すると教師ありデータ $S$ と教師なしデータ $U$ で推定される分布が違うわけですが、最終的に汎化して欲しいのはデータをたくさん含む $U$ の方なわけです。
+それで冒頭の定義を見てみると、これはドメイン適応問題として見ることもできるのだろうか、と思いました。
+教師ありデータと教師なしデータが異なる分布に従うと思っても、そんなに変ではないのではないか、と。
+結局は問題のモデル化をどっちにするかという話ですし、$S$ と $U$ が同じ分布に従うという仮定はある種の事前知識なわけで、それが正しい事前知識ならば使った方が良い結果が得られるようにも思うし、一般にドメイン適応の方が難しい問題だと思うので、そこに帰着させるのが意味のある議論なのかよくわからないのですが。
+直感としては、$S$ がとても小さくてスパースに分布しているとき、サンプリングがたまたま偏る確率は低くないわけで、そうすると $S$ と $U$ は異なるパラメータでモデル化した方がうまくいくようなケースというのがあるのではないかという気がしています。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Softplus関数]]></title>
+    <link href="http://beam2d.github.io/blog/2014/03/02/softplus/"/>
+    <updated>2014-03-02T22:38:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2014/03/02/softplus</id>
+    <content type="html"><![CDATA[<p>今日、Caffeというナウいニューラルネット実装を読んでいたら次の行で？？？となりました。</p>
+
+<p><a href="https://github.com/BVLC/caffe/blob/v0.9/src/caffe/layers/bnll_layer.cu#L20">https://github.com/BVLC/caffe/blob/v0.9/src/caffe/layers/bnll_layer.cu#L20</a></p>
+
+<p>数式で書くと（logは自然対数）</p>
+
+<script type="math/tex; mode=display">% &lt;![CDATA[
+
+f(x)=\begin{cases}
+  x+\log(1+e^{-x}) & \text{if}\,x > 0, \\
+  \log(1+e^x) & \text{otherwise}.
+\end{cases}
+ %]]&gt;</script>
+
+<p>もっとオシャレに書くと</p>
+
+<script type="math/tex; mode=display">f(x)=\max(0, x)+\log(1+e^{-\vert x\vert}).</script>
+
+<p>これが数値計算的なテクニックなのか、近似も含んでるのか、僕が知らないactivation関数なのかパッと見判断つかなかったのですが、微分してみたら両方シグモイド関数になりました（で、よく見たらすぐ下に導関数の実装も書いてあった）。
+まず滑らかなのかこれ、というところでちょっと驚く。</p>
+
+<p>さて、シグモイドを導関数に持つのは、softplusと呼ばれる関数です（これも忘れててしばらく考えてた）。</p>
+
+<script type="math/tex; mode=display">\text{softplus}(x)=\log(1+e^x).</script>
+
+<p>これはRectified linear Unit (ReLU) とかpositive partと呼ばれる式 $\max(0, x)$ と似た性質を持っていて、かつ滑らかで勾配が（厳密には）消えない関数としてニューラルネット界隈で時々使われます。
+つまり上の式はsoftplus関数なのでした。</p>
+
+<p>実際、softplus関数にlogsumexpでやるような大きなexpの追い出しをやると $x&gt;0$ における最初の式が導出できます。</p>
+
+<script type="math/tex; mode=display">
+\log(1+e^x)=\log(e^x(e^{-x}+1))=x+\log(1+e^{-x}).
+</script>
+
+<p>当たり前ですが頑張ればもとの（オシャレな方の）式からsoftplusを導出することもできます。positive partとnegative partが出てきてちょっと面白い（個人の感想です）。</p>
+
+<script type="math/tex; mode=display">% &lt;![CDATA[
+
+\begin{align*}
+\max(0, x)+\log(1+e^{-\vert x\vert})
+&=\log(e^{\max(0, x)}(1+e^{-\vert x\vert}))\\
+&=\log(e^{\max(0, x)}+e^{\max(0, x)-\vert x\vert})\\
+&=\log(e^{\max(0, x)}+e^{\min(0, x)})\\
+&=\log(1+e^x).
+\end{align*}
+ %]]&gt;</script>
+
+<p>気づいてしまえばそうなんですが、最初softplus関数のことが頭になかったので、しばらく考えてしまいました。
+数値計算テクむずい。</p>
+
+<p>さて、するとこの式はReLUとsoftplus関数の差を表す式ということになります。</p>
+
+<script type="math/tex; mode=display">\text{softplus}(x)-\max(0, x)=\log(1+e^{-\vert x\vert}).</script>
+
+<p>右辺の関数 $\log(1+e^{-\vert x\vert})$ をプロットしてみると次のようになります。</p>
+
+<p><img src="http://beam2d.github.io/images/softplus-relu.png" alt="Softplus(x) - ReLU(x)" /></p>
+
+<p>式から明らかですが、僕のぱっと見の想像と違ってSoftplusとReLUの差は左右対称な形をしていました。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[2014年]]></title>
@@ -71,6 +172,125 @@
   <ol>
     <li id="fn:1">
       <p>ミントも心拍数を上げるそうです。これは知らなかった。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[バイアス・バリアンス分解]]></title>
+    <link href="http://beam2d.github.io/blog/2013/12/28/bias-variance-decomposition/"/>
+    <updated>2013-12-28T16:37:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/12/28/bias-variance-decomposition</id>
+    <content type="html"><![CDATA[<p>機械学習の文献を読んでいると学習手法のバイアス・バリアンスという話が良く出てきます。
+複雑さの大きい手法は低バイアスだが高バリアンスで過学習しやすい、とか言ったりします。
+教科書でよく触れられるのは二乗誤差を用いた回帰問題におけるバイアス・バリアンス分解ですが、分類問題ではどうなるのか知らなかったので調べました。</p>
+
+<!-- more -->
+
+<h2 id="section">回帰におけるバイアス・バリアンス分解</h2>
+
+<p>まずは回帰における分解を思い出してみます。
+訓練データセット $D=((x_i, t_i))_{i=1}^n$ はデータ生成分布 $\mathcal P$ に従うi.i.d.点列とします。
+学習手法 $f$ は訓練データ $D$ を学習したときに予測器 $f_D$ を出力します。
+正解データ $t$ のときに $y$ を予測した場合のエラーは二乗誤差 $L(t, y)=(t-y)^2$ で与えられるとします。</p>
+
+<p>考えたいのは $f$ が解きたい問題をどれくらい正しく学習してくれるかです。
+ここでは新たなサンプル $x$ と対応する $t$ を使って評価します。
+ただし $t$ にはラベルノイズ <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> が乗っていると仮定し、$t$ に関する期待誤差で評価することにします。
+データセット $D$ を学習した予測器 $f_D$ のサンプル $x$ における評価は $\mathbb E_{t\vert x}L(t, f_D(x))$ で与えられます。
+ここで $\mathbb E$ は添字の確率変数に関する期待値を表すとします（ここでは条件付き分布 $p(t\vert x)$ について期待値を取ります）。</p>
+
+<p>最適な予測は $y^\star(x)=\text{arg}\min_{y}\mathbb E_{t\vert x}L(t, y)$ で与えられます。
+二乗誤差を用いる場合、最適な予測は $t$ の期待値 $y^\star(x)=\mathbb E_{t\vert x}t$ となります。</p>
+
+<p>$\mathbb E_{t\vert x}L(t, f_D(x))$ は予測誤差の評価としては適切ですが、評価対象は具体的な予測器 $f_D$ であって、学習手法 $f$ 自体の評価とは言えません。
+後者を考えたい場合、データセット $D$ を確率変数だと思って、これを積分消去します。
+つまり評価指標としては $\mathbb E_{D, t\vert x}L(t, f_D(x))=\mathbb E_{D, t\vert x}(t-f_D(x))^2$ が適切です。</p>
+
+<p>同じように予測器に対してもデータセットの積分消去を考えることができます。
+これはデータセット全体に渡る「予測器の期待値」$f_{\mathcal P}$を与え、手法 $f$ のデータセットに依らない出力となります。
+式で書くと $f_{\mathcal P}(x)=\mathbb E_D f_D(x)$ です。
+ここではこれを期待予測と呼ぶことにします。</p>
+
+<p>期待予測と最適予測を使って上記の評価指標をキレイに分解することができます。</p>
+
+<script type="math/tex; mode=display">% &lt;![CDATA[
+
+\begin{align*}
+\mathbb E_{D, t\vert x}(t-f_D(x))^2&=\mathbb E_{D, t\vert x}((t-f_{\mathcal P}(x))+(f_{\mathcal P}(x)-f_D(x)))^2\\
+&=\mathbb E_{t\vert x}(t-f_{\mathcal P}(x))^2+\mathbb E_D(f_{\mathcal P}(x)-f_D(x))^2+2(t-f_{\mathcal P}(x)\mathbb E_D(f_{\mathcal P}(x)-f_D(x))\\
+&=\mathbb E_{t\vert x}(t-f_{\mathcal P}(x))^2+\mathbb E_D(f_{\mathcal P}(x)-f_D(x))^2\\
+&=\mathbb E_{t\vert x}((t-y^\star)+(y^\star-f_{\mathcal P}(x))^2+\mathbb E_D(f_{\mathcal P}(x)-f_D(x))^2\\
+&=\mathbb E_{t\vert x}(t-y^\star)^2+(y^\star-f_{\mathcal P}(x))^2-2(y^\star-f_{\mathcal P}(x))\mathbb E_{t\vert x}(t-y^\star)+\mathbb E_D(f_{\mathcal P}(x)-f_D(x))^2\\
+&=\mathbb E_{t\vert x}(t-y^\star)^2+(y^\star-f_{\mathcal P}(x))^2+\mathbb E_D(f_{\mathcal P}(x)-f_D(x))^2\\
+&=\mathbb E_{t\vert x}L(t, y^\star)+L(y^\star, f_{\mathcal P}(x))+\mathbb E_D L(f_{\mathcal P}(x), f_D(x)).
+\end{align*}
+ %]]&gt;</script>
+
+<p>期待二乗誤差をある確率変数について分解するテクニックを2回使っています。
+これらのテクニックが使えるのは $y^\star$ と $f_{\mathcal P}$ の定義のおかげで、これらの定義が本質的であることを表しています。</p>
+
+<p>分解された最右辺の各項を左から順に $N(x), B(x), V(x)$ とおきます。
+これらはそれぞれ<strong>ノイズ</strong>、<strong>（二乗）バイアス</strong>、<strong>バリアンス</strong>と呼ばれています。
+3項に分解されたこの形はバイアス・バリアンス・ノイズ分解 (BVND) と呼ばれます。
+ノイズ項は学習手法 $f$ によらない誤差の下限で、ラベルノイズの影響を表しています。
+ラベルノイズが全くない場合には $N(x)=L(y^\star, y^\star)=(y^\star-y^\star)^2=0$ となり、教科書でよく見るバイアス・バリアンス分解 (BVD) の式になります。</p>
+
+<p>ここで述べた二乗誤差に対するバイアス・バリアンス分解の定式化は1992年に [1] において導入されたようです。
+バイアス・バリアンスという概念とそれらの間のトレードオフ自体はそれ以前から経験則としてよく知られていたようです。
+[1] からしばらくの間、分類問題への様々な拡張が提案されました。
+今日はその中でも2000年にPedro Domingosが提案した拡張を紹介します。</p>
+
+<h2 id="section-1">バイアス・バリアンス分解の一般化</h2>
+
+<p>Pedro Domingosが提案した拡張 [2] は分類問題だけでなく一般の誤差関数 $L$ に対する拡張です。
+分類問題に適用する場合は0-1誤差 $L(t, y)=1_{t=y}$ を用います。
+ここで $1_P$ は命題 $P$ が真の場合に1、そうでない場合に0とします。</p>
+
+<p>記号のおさらいをします。
+訓練データセット $D=((x_i, t_i))_{i=1}^n$ はデータ生成分布 $\mathcal P$ に従うi.i.d.点列とします。
+学習手法 $f$ はデータセット $D$ を入力すると予測器 $f_D$ を出力します。
+新たなサンプル $x$ とラベルノイズの乗った出力 $t$ を用いて $f$ を評価します。
+具体的な予測器 $f_D$ の評価は $\mathbb E_{t\vert x}L(t, f_D(x))$ で与えられます。
+これをデータセット $D$ について周辺化することで学習手法 $f$ の評価 $\mathbb E_{D, t\vert x}L(t, f_D(x))$ が得られます。
+最適な予測は $y^\star=\text{arg}\min_y\mathbb E_{t\vert x}L(t, y)$ です。</p>
+
+<p>回帰（二乗誤差）における期待予測 $f_{\mathcal P}(x)=\mathbb E_D f_D(x)$ を一般の誤差関数でそのまま用いることはできません。
+たとえば0-1誤差の場合、予測は必ず0か1でなくてはなりませんが、一般に期待予測 $f_{\mathcal P}(x)$ が0, 1の二値を取る保証はありません。
+そこで [2] では「すべての $f_D(x)$ から平均的に最も近い予測」を代わりに使っています。
+式で示すと $f_{\mathcal P}^{\text m}(x)=\text{arg}\min_y\mathbb E_D L(f_D(x), y)$ です。
+[2] ではこれを<strong>主予測(main prediction)</strong>と呼んでいます。
+$L$ が二乗誤差の場合、主予測 $f_{\mathcal P}^{\text m}(x)$ は期待予測 $f_{\mathcal P}(x)$ と一致します。
+つまり主予測は期待予測の一般化になっています。</p>
+
+<p>以上のもとで二乗誤差の場合と全く同じようにノイズ、バイアス、バリアンス項を定義します。</p>
+
+<script type="math/tex; mode=display">% &lt;![CDATA[
+
+\begin{align*}
+N(x)&=\mathbb E_{t\vert x}L(t, y^\star(x)),\\
+B(x)&=L(y^\star(x), f_{\mathcal P}^{\text m}(x)),\\
+V(x)&=\mathbb E_D L(f_{\mathcal P}^{\text m}(x), f_D(x)).\\
+\end{align*}
+ %]]&gt;</script>
+
+<p>このとき $L$ が「適切な」誤差関数であれば以下の分解ができます。</p>
+
+<script type="math/tex; mode=display">\mathbb E_{D, t\vert x}L(t, f_D(x))=c_1(x)N(x)+B(x)+c_2(x)V(x).</script>
+
+<p>ここで $c<em>1, c</em>2$ は$x$ と誤差関数によって定まる定数です。</p>
+
+<h2 id="section-2">参考文献</h2>
+
+<p>[1] Stuart Geman, Elin Bienenstock and Rene Doursat. <a href="http://www.dna.caltech.edu/courses/cns187/references/geman_etal.pdf">Neural networks and the bias/variance dilemma</a>. <em>Neural Computation</em>, <em>4</em>, 1-58, 1992.<br />
+[2] Pedro Domingos. <a href="http://homes.cs.washington.edu/~pedrod/papers/mlc00a.pdf">A Unified Bias-Variance Decomposition and its Applications</a>. <em>Proc. 17th ICML</em>, 2000.<br />
+[3] Pedro Domingos. <a href="http://homes.cs.washington.edu/~pedrod/bvd.pdf">A unified bias-variance decomposition</a>. <em>Tech. Report</em>, 2000.</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>この用語は主に分類問題で用いられるものですが、ここでは回帰を含む一般の予測問題においても同じ用語を使うことにしました。<a href="#fnref:1" rel="reference">&#8617;</a></p>
     </li>
   </ol>
 </div>
