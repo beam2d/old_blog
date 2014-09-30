@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 実装 | @beam2d]]></title>
+  <link href="http://beam2d.github.io/blog/categories/shi-zhuang/atom.xml" rel="self"/>
+  <link href="http://beam2d.github.io/"/>
+  <updated>2014-09-30T23:30:14+09:00</updated>
+  <id>http://beam2d.github.io/</id>
+  <author>
+    <name><![CDATA[Seiya Tokui]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Softplus関数]]></title>
+    <link href="http://beam2d.github.io/blog/2014/03/02/softplus/"/>
+    <updated>2014-03-02T22:38:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2014/03/02/softplus</id>
+    <content type="html"><![CDATA[<p>今日、Caffeというナウいニューラルネット実装を読んでいたら次の行で？？？となりました。</p>
+
+<p><a href="https://github.com/BVLC/caffe/blob/v0.9/src/caffe/layers/bnll_layer.cu#L20">https://github.com/BVLC/caffe/blob/v0.9/src/caffe/layers/bnll_layer.cu#L20</a></p>
+
+<p>数式で書くと（logは自然対数）</p>
+
+<script type="math/tex; mode=display">% &lt;![CDATA[
+
+f(x)=\begin{cases}
+  x+\log(1+e^{-x}) & \text{if}\,x > 0, \\
+  \log(1+e^x) & \text{otherwise}.
+\end{cases}
+ %]]&gt;</script>
+
+<p>もっとオシャレに書くと</p>
+
+<script type="math/tex; mode=display">f(x)=\max(0, x)+\log(1+e^{-\vert x\vert}).</script>
+
+<p>これが数値計算的なテクニックなのか、近似も含んでるのか、僕が知らないactivation関数なのかパッと見判断つかなかったのですが、微分してみたら両方シグモイド関数になりました（で、よく見たらすぐ下に導関数の実装も書いてあった）。
+まず滑らかなのかこれ、というところでちょっと驚く。</p>
+
+<p>さて、シグモイドを導関数に持つのは、softplusと呼ばれる関数です（これも忘れててしばらく考えてた）。</p>
+
+<script type="math/tex; mode=display">\text{softplus}(x)=\log(1+e^x).</script>
+
+<p>これはRectified linear Unit (ReLU) とかpositive partと呼ばれる式 $\max(0, x)$ と似た性質を持っていて、かつ滑らかで勾配が（厳密には）消えない関数としてニューラルネット界隈で時々使われます。
+つまり上の式はsoftplus関数なのでした。</p>
+
+<p>実際、softplus関数にlogsumexpでやるような大きなexpの追い出しをやると $x&gt;0$ における最初の式が導出できます。</p>
+
+<script type="math/tex; mode=display">
+\log(1+e^x)=\log(e^x(e^{-x}+1))=x+\log(1+e^{-x}).
+</script>
+
+<p>当たり前ですが頑張ればもとの（オシャレな方の）式からsoftplusを導出することもできます。positive partとnegative partが出てきてちょっと面白い（個人の感想です）。</p>
+
+<script type="math/tex; mode=display">% &lt;![CDATA[
+
+\begin{align*}
+\max(0, x)+\log(1+e^{-\vert x\vert})
+&=\log(e^{\max(0, x)}(1+e^{-\vert x\vert}))\\
+&=\log(e^{\max(0, x)}+e^{\max(0, x)-\vert x\vert})\\
+&=\log(e^{\max(0, x)}+e^{\min(0, x)})\\
+&=\log(1+e^x).
+\end{align*}
+ %]]&gt;</script>
+
+<p>気づいてしまえばそうなんですが、最初softplus関数のことが頭になかったので、しばらく考えてしまいました。
+数値計算テクむずい。</p>
+
+<p>さて、するとこの式はReLUとsoftplus関数の差を表す式ということになります。</p>
+
+<script type="math/tex; mode=display">\text{softplus}(x)-\max(0, x)=\log(1+e^{-\vert x\vert}).</script>
+
+<p>右辺の関数 $\log(1+e^{-\vert x\vert})$ をプロットしてみると次のようになります。</p>
+
+<p><img src="/images/softplus-relu.png" alt="Softplus(x) - ReLU(x)" /></p>
+
+<p>式から明らかですが、僕のぱっと見の想像と違ってSoftplusとReLUの差は左右対称な形をしていました。</p>
+]]></content>
+  </entry>
+  
+</feed>
