@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 機械学習 | @beam2d]]></title>
+  <link href="http://beam2d.github.io/blog/categories/ji-jie-xue-xi/atom.xml" rel="self"/>
+  <link href="http://beam2d.github.io/"/>
+  <updated>2014-09-30T23:31:05+09:00</updated>
+  <id>http://beam2d.github.io/</id>
+  <author>
+    <name><![CDATA[Seiya Tokui]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[半教師あり学習はドメイン適応か？]]></title>
+    <link href="http://beam2d.github.io/blog/2014/09/30/is-ssl-domain-adaptation/"/>
+    <updated>2014-09-30T22:03:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2014/09/30/is-ssl-domain-adaptation</id>
+    <content type="html"><![CDATA[<p>データがある分布に従う、とはどういうことなんでしょうか。</p>
+
+<!-- more -->
+
+<p>半教師あり学習は、教師ありデータが少ない時に、いっぱいある教師なしデータを使って汎化性能を上げようという問題です。
+一方、ドメイン適応は、識別したいデータと教師データが異なる分布に従うときに、識別したいデータにおける識別性能を上げようという問題です。</p>
+
+<p>半教師あり学習の設定で、生成モデルを考えます。
+データの分布を適当なモデル $p(x|\theta)$ で推定します。
+ここで $\theta$ はパラメータです。
+事前分布を $p(\theta)$ とします。
+このとき、教師ありデータセット $S$ を観測するとパラメータの事後分布 $p(\theta|S)$ が決まります。
+つまりモデル $\{p(x|\theta)\}_\theta$ の中で $S$ を生成しそうな分布の確率分布が得られます。
+一方、教師なしデータも含めたデータセット $U$ を観測して得られる事後分布 $p(\theta|U)$ は一般に異なる分布です。
+つまり $U$ を生成しそうな分布の確率分布は $S$ のそれとは異なります。</p>
+
+<p>普通、半教師あり学習では i.i.d. なサンプル集合 $S$ と $U$ が同じ分布に従うことを仮定します。
+その仮定を外すと、上記の通り $S$ と $U$ は異なる分布に従うと推定されるように思えます。
+というよりむしろ、これらが異なる分布になるから半教師あり学習をする意味があるんではないかという気さえしてきます。
+$U$ の方がデータが多いわけなので、$p(\theta|U)$ は $p(\theta|S)$ より低分散な分布になると予想されます。
+そこから推定される $p(x)$ は教師ありデータと教師なしデータで異なるはずです。
+例えばベイズっぽく推定するなら $X\in\{S, U\}$ として $p(x|X)=\mathbb E_{\theta|X}p(x|\theta)$ となり、$X=S$ の場合と $X=U$ の場合で異なる分布が得られる（かもしれない）わけです。</p>
+
+<p>すると教師ありデータ $S$ と教師なしデータ $U$ で推定される分布が違うわけですが、最終的に汎化して欲しいのはデータをたくさん含む $U$ の方なわけです。
+それで冒頭の定義を見てみると、これはドメイン適応問題として見ることもできるのだろうか、と思いました。
+教師ありデータと教師なしデータが異なる分布に従うと思っても、そんなに変ではないのではないか、と。
+結局は問題のモデル化をどっちにするかという話ですし、$S$ と $U$ が同じ分布に従うという仮定はある種の事前知識なわけで、それが正しい事前知識ならば使った方が良い結果が得られるようにも思うし、一般にドメイン適応の方が難しい問題だと思うので、そこに帰着させるのが意味のある議論なのかよくわからないのですが。
+直感としては、$S$ がとても小さくてスパースに分布しているとき、サンプリングがたまたま偏る確率は低くないわけで、そうすると $S$ と $U$ は異なるパラメータでモデル化した方がうまくいくようなケースというのがあるのではないかという気がしています。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Denoising Autoencoderとその一般化]]></title>
+    <link href="http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization/"/>
+    <updated>2013-12-23T22:48:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/12/23/dae-and-its-generalization</id>
+    <content type="html"><![CDATA[<p><a href="http://qiita.com/advent-calendar/2013/machinelearning">Machine Learning Advenc Calendar 2013</a>の23日目担当の得居です。
+<a href="https://preferred.jp">株式会社Preferred Infrastructure</a>で<a href="http://jubat.us">Jubatus</a>を作ったりしています。</p>
+
+<p>今日は深層学習(deep learning)の話です。
+深層学習はこの2年ほどで専門外の人にも知れ渡るほどに大流行しました。
+データさえ大量にあればテクニック次第で他の手法を圧倒する性能を達成できることから、特に大量のデータを持つ大企業において大々的な参入が相次ぎました。</p>
+
+<p>主に流行っているのは教師あり学習です。
+補助として教師なし学習による事前学習(pretraining)も、特に音声認識のタスクにおいては行われているようですが、画像認識を中心に事前学習なしでもテクニック次第で学習できるという見方が強まっています。</p>
+
+<p>一方で教師なしデータからの学習はブレイクスルー待ちといった雰囲気です。
+Deep Belief NetworksやDeep Boltzmann Machinesなど「無名隠れ変数 (anonymous latent variables)」を用いた生成モデルが先行して詳しく解析されていますが、その学習は教師あり学習のようにはうまくいっていないのが現状です<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>。</p>
+
+<p>今日お話するDenoising Autoencoder (DAE)はそんな教師なし深層学習で用いられる手法・モデルの一つです。
+RBM系の深層生成モデルとは別の系統になりますが、DAEをベースにした確率的な深層モデルの理論が数年遅れて最近発展してきているので、今日はその概要をまとめて書きたいと思います。
+主にPascal VincentとYoshua Bengioによるこの5年間の研究の流れに沿って、以下の様な順に書きます。</p>
+
+<ul>
+  <li>Autoencoderの定式化</li>
+  <li>DAEの定式化とそのオリジナルの解釈</li>
+  <li>DAEのスコアマッチングとしての解釈</li>
+  <li>DAEの確率モデルとしての一般化</li>
+  <li>一般化DAEのためのWalkbackアルゴリズム</li>
+  <li>隠れ変数を入れたさらに一般のモデルとその特徴</li>
+</ul>
+
+<p>分量の割に時間がかかっていないので、説明が変だったりまどろっこしい部分があるかもしれません。
+気づいた点がございましたらぜひ<a href="https://twitter.com/beam2d">@beam2d</a>までお知らせください。</p>
+
+<!-- more -->
+
+<h2 id="autoencoder-ae">Autoencoder (AE)</h2>
+
+<p>まずAEの定式化を紹介します。
+入力層 $x\in\mathbb R^d$ に対して隠れ層 $y=f_\theta(x)=s(Wx+b)\in\mathbb R^{d_\text{h}}$ と復元層 $x^r=g_{\theta’}(y)=s_r(W’y+c)\in\mathbb R^d$ を定義します。
+ただし $\theta=(W, b)$, $\theta’=(W’, c)$ は共に学習すべきパラメータです。
+$s, s_r$ は活性化関数(activation function)と呼ばれます。
+$s_r$ は入力がバイナリ値ならシグモイド関数、一般の実数値なら恒等関数にします。
+$W’=W^\top$ という制約(tied weights)を置くと性能が良いことが知られています（解釈の一つが後ほど出てきます）。
+関数 $f_\theta$ はエンコーダ、$g_{\theta’}$ はデコーダと呼ばれます。</p>
+
+<p>こうして定義された復元層 $x^r$ が入力層 $x$ にできるだけ近くなるようにエンコーダとデコーダのパラメータ $\theta, \theta’$ を学習します。
+訓練データ $\mathcal D={x_1, \dots, x_n}$ に対して損失関数 $L(x, x^r)$ の平均値を最小化します:</p>
+
+<script type="math/tex; mode=display">\min_{\theta, \theta'} {1\over n}\sum_{i=1}^nL(x_i, g(f(x_i))).</script>
+
+<p>損失関数 $L$ としては、入力がバイナリ値ならば交差エントロピー誤差、一般の実数値ならば二乗誤差を用いるのが一般的です。</p>
+
+<p>AE自体は1980年代から知られていたようです(要出典)。
+オリジナルのAEには ${d\le d_\textrm{h}}$ のときに恒等関数が最適になってしまうという問題点があります。
+この問題を回避するために $d&gt;d_\textrm{h}$ としたり（ボトルネック型のAE）、正則化項を加えたものを用いたりしていました。</p>
+
+<h2 id="denoising-autoencoder-dae">Denoising Autoencoder (DAE)</h2>
+
+<p>DAE [1]は正則化項とは異なるアプローチで2008年にPascal Vincentらが提案したAEの亜種です。
+入力の一部を破壊することで、恒等関数が最適でないような問題に変形します。</p>
+
+<p>入力ベクトルの一部にノイズを加える破壊分布(corruption distribution) $\mathcal C(\tilde X\vert X)$ を考えます。
+破壊分布としてはガウスノイズや、成分をランダムに選んで0や1に潰す塩胡椒ノイズ(salt and pepper noise)などが用いられます。</p>
+
+<p>入力 $X=x$ に対して $\mathcal C(\tilde X|X)$ から $\tilde X$ をサンプリングして、そこからエンコーダ・デコーダを使って入力 $X$ を復元します。
+入力データを生成する分布を $\mathcal P(X)$ とします。
+このときDAEは以下の期待値最適化問題として書かれます。</p>
+
+<script type="math/tex; mode=display">\min_{\theta, \theta'} {\mathbb E}_{X\sim\mathcal P(X), \tilde X\sim\mathcal C(\tilde X\vert X)}L(X, g(f(\tilde X))).</script>
+
+<p>これは同時分布 $\mathcal P(X, \tilde X)=\mathcal P(X)\mathcal C(\tilde X\vert X)$ 上の確率的最適化問題なので、確率的勾配降下法 (SGD)などで最適化できます。</p>
+
+<p>関数 $g\circ f$ は破壊された（ノイズの乗った）入力 $\tilde X$ をもとの入力 $X$ に復元するように学習されるので、提案者であるP. VincentはこれをDenoising Autoencoderと名づけました。</p>
+
+<h3 id="dae">DAEの様々な解釈</h3>
+
+<p>DAEの見た目はAEのちょっとした亜種ですが、確率的な操作が関わることで多様な解釈を生み出しています。
+例えばVincentの元論文ではDAEに対するいくつかの解釈が述べられています。</p>
+
+<ul>
+  <li><strong>多様体学習</strong>
+高次元空間 $\mathbb R^d$ 上のデータ分布 $\mathcal P(X)$ は低次元多様体に埋まっているとする仮説があります。
+DAEは多様体から少しずれた位置にある $\tilde X$ を多様体上に引き戻すように学習されるので、この低次元多様体を学習していることに相当します。
+DAEはさらに、多様体の法線方向へのずれに対してロバストな写像を学習すると考えることができます。
+この考え方はContractive Autoencoderへと受け継がれています[2]。</li>
+  <li><strong>生成モデル</strong>
+バイナリ値の入力の場合を考えます。
+$f, g$ を用いて二つの生成モデルを考えます。
+    <ul>
+      <li>エンコーディングのモデル $q^0(X, \tilde X, Y)=q^0(X)\mathcal C(\tilde X\vert X)\delta_{f_\theta(\tilde X)}(Y)$。ここで $q^0(X)$ は経験分布、$\delta$ は添字を平均とするデルタ分布。</li>
+      <li>デコーディングのモデル $p(X, \tilde X, Y)=p(Y)p(X\vert Y)\mathcal C(\tilde X\vert X)$。ここで $p(Y)$ は $[0, 1]^{d_\text{h}}$ 上の一様分布、$p(X\vert Y)$ は $g_{\theta’}(Y)$ を平均とするベルヌーイ分布。</li>
+    </ul>
+
+    <p>このとき、ごにょごにょ計算すると、DAEの誤差最小化問題は二つのモデルの間の交差エントロピー $\mathbb E_{q^0(\tilde X)}[-\log p(\tilde X)]$ の変分下界最大化と等価であることが示せます。</p>
+  </li>
+  <li><strong>情報理論</strong>
+DAEの最小化問題は他にも入力層 $X$ と隠れ層 $Y$ の相互情報量 $I(X; Y)$ の下界を最大化していることとも等価になりそうです。</li>
+</ul>
+
+<p>またVincentの2011年の論文[3]ではスコアマッチングとの関係が示されています。
+<strong>スコアマッチング (Score Matching)</strong> [4]とは分配関数を計算しないで確率モデルのパラメータを推定するための手法の一つです。
+確率分布 $p(\xi; \theta)$ のスコア関数を $\psi(\xi; \theta)=\nabla_{\xi}\log p(\xi; \theta)$ と定義します<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。
+つまりスコア関数は入力に対する対数密度の勾配です。
+これは真の分布 $p_x(\xi)$ についても考えることができます: $\psi_x(\xi)=\nabla_{\xi}\log p_x(\xi)$。
+これら2つのスコア関数の期待二乗距離を最小化するのがスコアマッチングです。</p>
+
+<script type="math/tex; mode=display">\min_{\theta}\frac12\int\lVert\psi(\xi; \theta)-\psi_x(\xi)\lVert^2dp_x(\xi).</script>
+
+<p>$\psi_x$ が計算できないように見えますが、ごにょごにょ計算するとこれをモデルの2階微分を使った式で置き換えることができます。
+スコアマッチングは入力に対する対数勾配を取ることで、分配関数を消しているところが特徴です（分解関数は入力に依存しないため、入力で微分すると消えます）。</p>
+
+<p>[3]では、入力が実変数で損失関数が二乗誤差の場合のDAEが、スコアマッチングにおいて真の分布 $p_x$ の代わりに各訓練データを平均とする成分（パーゼン窓）からなる混合ガウス分布を用いたものと等価であることを示しています。
+その過程でtied weightsが自然に導出されます。
+またDAEの目的関数に対応するエネルギー関数も導出されています。</p>
+
+<script type="math/tex; mode=display">E(x; \theta)=-{1\over\sigma^2}\left(\langle c, x\rangle-\frac12\lVert x\lVert^2+\sum_{j=1}^{d_\text{h}}\text{softplus}(\langle W_j, x\rangle+b_j)\right).</script>
+
+<p>ここで $\sigma^2$ はパーゼン窓の分散パラメータ、$\text{softplus}(t)=\log(1+e^t)$、$W_j$ は重み行列 $W$ の $j$ 行目、$b_j$ はバイアス $b$ の第 $j$ 成分です。
+エネルギー関数はRBMのものによく似ています（係数が少し違います）。</p>
+
+<h2 id="dae-1">一般化DAE</h2>
+
+<p>これまでに述べたDAEの特徴的な性質は、破壊された入力からもとの入力を復元するという操作から導き出されるものでした。
+復元するための関数を2層のニューラルネットに限定せず、また入力や隠れ変数の種類（バイナリか実数かなど）や破壊分布や損失関数の種類に依らない、一般的な確率モデルとして捉え直したものがYoshua Bengioによって今年のNIPSで提案されています [5]。
+さらにそのDAEが定めるマルコフ連鎖によって、真のデータ生成分布 $\mathcal P(X)$ 全体を推定することができると主張しています。</p>
+
+<p>真のデータ生成分布を $\mathcal P(X)$、破壊分布を $\mathcal C(\tilde X\vert X)$、パラメータ $\theta$ を持つDAEのモデルを $P_\theta(X\vert\tilde X)$ とします。
+このモデル $P_\theta(X\vert\tilde X)$ としては、もとのDAEの定式化でいえば $g(f(\tilde X))$ を平均とするベルヌーイ分布やガウス分布などが考えられます（入力変数の種類によって適切なものを使います）。
+このとき一般化DAEでは同時分布 $\mathcal P(X, \tilde X)=\mathcal P(X)\mathcal C(\tilde X\vert X)$ 上の負の期待対数尤度 $\mathcal L(\theta)=-\mathbb E_{\mathcal P(X, \tilde X)}\log P_\theta(X\vert\tilde X)$ を最小化します。
+実際には有限個の訓練データしか使えないので、正則化項を加えた次式を最小化します。</p>
+
+<script type="math/tex; mode=display">\mathcal L_n(\theta)=\frac1n\sum_{X\sim\mathcal P(X), \tilde X\sim\mathcal C(\tilde X\vert X)}\lambda_n\Omega(\theta, X, \tilde X)-\log P_\theta(X\vert\tilde X).</script>
+
+<p>ここで $\Omega$ は正則化項、$n$ は訓練データ数、つまり上式の総和の項数です。
+この関数 $\mathcal L_n(\theta)$ を最小化するパラメータを $\theta_n$ とおきます。
+ここで正則化の係数 $\lambda_n$ は $\lambda_n\to0\,(n\to\infty)$ となるように選びます。
+よって$\mathcal L_n\to\mathcal L$ となります。</p>
+
+<p>このモデルをもとに、$X$ と $\tilde X$ を交互に生成するマルコフ連鎖を考えます。</p>
+
+<script type="math/tex; mode=display">X_t\sim P_\theta(X\vert\tilde X_{t-1}),\,\tilde X_t\sim\mathcal C(\tilde X\vert X_t).</script>
+
+<p>$\theta=\theta_n$ の場合を考えます。
+これを $X_t$ に関するマルコフ連鎖と考えたときの遷移作用素は $\tilde X$ を積分消去して $T_n(X_t\vert X_{t-1})=\int P_{\theta_n}(X_t\vert\tilde X)\,\mathcal C(\tilde X\vert X)\,d\tilde X$ となります。
+$T_n$ が定めるマルコフ連鎖が漸近分布を持つとは限りませんが、持つ場合にはそれを $\pi_n$ とおきます。
+また $T=\lim_{n\to\infty}T_n$ とします。
+このとき、[5]では以下の定理が成り立つことを示しています。</p>
+
+<p><strong>定理1</strong> $P_{\theta_n}(X\vert\tilde X)$ が $\mathcal P(X\vert\tilde X)$ のconsistent estimatorで、かつ $T_n$ が定めるマルコフ連鎖がエルゴード的なら、$n\to\infty$ において $\pi_n(X)$ は $\mathcal P(X)$ に収束する。</p>
+
+<p>つまり上のマルコフ連鎖が既約（任意の状態間を移動できる）で非周期的ならば $P_{\theta}(X\vert\tilde X)$ を正しく推定することで真のデータ生成分布が得られるということを言っています。</p>
+
+<p>[5]が重要だと主張しているポイントは、破壊された入力 $\tilde X$ に対する $\mathcal P(X\vert\tilde X)$ を推定する方が $\mathcal P(X)$ を直接推定するより簡単だという点です。
+$\mathcal P(X)$ は一般に多峰性の複雑な形になりますが、$\mathcal P(X\vert\tilde X)$ は破壊分布 $\mathcal C(\tilde X\vert X)$ が十分局所的なら、ほとんど一つのモード（峰）だけが支配的になり、推定が容易になると言っています。</p>
+
+<h3 id="walkback">Walkbackアルゴリズム</h3>
+
+<p>直前の段落で述べたポイントでは $\tilde X$ が $X$ に十分近ければ推定できるという話でしたが、上のマルコフ連鎖においてギブスサンプリングを回しているうちに $\tilde X_t$ がもとの $X_0$ から離れていってしまう可能性があります。
+特にデータ多様体から離れた位置ではモデルがあまり学習されないため、一度多様体の近くを離れてしまうと誤ったモード(spurious modes)に吸い込まれていく可能性があります。
+[5]ではこれに対処するために、複数回ギブスサンプリングを回して得られた $\tilde X_t$ についても訓練データに入れる（つまり $P_\theta(X_0\vert\tilde X_t)$ も最大化する）という方法を提案しています。
+これを、遠くに行ってしまったサンプルをもとの場所に引き戻す、という意味で<strong>Walkbackアルゴリズム</strong>と呼んでいます。
+サンプリングを回す回数は適当に決めます（[5]では幾何分布からサンプリングして決めています）。
+WalkbackアルゴリズムはもとのDAEと同じ分布を学習することも示されていますが、もとのDAEよりも経験的に性能が良いそうです。</p>
+
+<p>Walkbackアルゴリズムは、モデルから生成されたサンプルを訓練データに使うという意味で、RBMに対するContrastive Divergence（特にCD-$k$アルゴリズム）と似ています。</p>
+
+<h2 id="generative-stochastic-network-gsn">Generative Stochastic Network (GSN)</h2>
+
+<p>Yoshua Bengioは一般化DAEをさらに一般化した枠組みを提案しています[6]。
+一般化DAEの枠組みでは潜在変数が含まれておらず、すべて $P_\theta(X\vert\tilde X)$ に込められていました。
+このモデルに複雑な構造（例えば深層モデル）を持たせるために、一般化DAEに潜在変数を加えたものがGSNです。</p>
+
+<p>GSNでは、一般化DAEにおけるマルコフ連鎖が潜在変数 $H_t$ を用いて次のように置き換えられます。</p>
+
+<script type="math/tex; mode=display">H_{t+1}\sim P_{\theta_1}(H\vert H_t, X_t),\,X_{t+1}\sim P_{\theta_2}(X\vert H_{t+1}).</script>
+
+<p>ここで $H_{t+1}$ を生成する式はノイズ変数 $Z_t$ を使って $H_{t+1}=f_{\theta_1}(X_t, Z_t, H_t)$ と表されるとします。
+一般化DAEの場合にはこの $P_{\theta_1}(H\vert H_t, X_t)$ が破壊分布 $\mathcal C(\tilde X_t\vert X_t)$ になっています（つまり $\tilde X_t$ が潜在変数となります）。</p>
+
+<p>[6]ではGSNにおいても一般化DAEと同様の収束性が成り立つことを示しています。
+つまり上のマルコフ連鎖に対しても、一般化DAEと同じような仮定のもとで漸近分布がデータ生成分布 $\mathcal P(X)$ に収束します。</p>
+
+<p>GSNではギブスサンプリングの過程で潜在変数 $H_t$ を記憶することができる点が一般化DAEとの重要な違いのようです。
+論文ではDeep Boltzmann Machineのサンプリングの計算グラフと同じように計算が進むようなGSNを例として作っています（[6]Figure 3）。
+これは隠れ層が3層あるモデルで、奇数目の層と偶数目の層を交互にサンプリングします。
+入力層をサンプリングしたあとには一般化DAEのマルコフ連鎖同様にノイズを加えます。
+また、隠れ層の各ユニットは活性化関数の前後にノイズを入れているようです（確率的ニューロンと呼んでいます[7]）。</p>
+
+<p>Walkbackアルゴリズムにより、複数ステップ後の復元結果を学習に使うことができます。
+DBMと異なりGSN全体は（確率的な）ニューラルネットなので、この復元層からの学習には誤差逆伝播法が使えます。
+これにより、GSN全体は生成モデルでありながら、深いモデルでも教師あり学習の種々のテクニックが利用できるのが利点です。
+例えば畳み込みレイヤーやプーリング、AdaGrad、Dropoutなどがそのまま使えます。</p>
+
+<p>また、GSNは入力に欠損値がある場合にも使え、観測されている入力値から欠損値を補完することができます。
+観測されている入力値 $X^{(s)}$ を固定した状態でギブスサンプリングを回せば $\mathcal P(X^{(-s)}\vert X^{(s)})$ からサンプリングできます。
+ここで $X^{(-s)}$ は残りの入力変数です。</p>
+
+<h2 id="section">まとめ</h2>
+
+<p>今日はDenoising Autoencoderの定式化と様々な解釈から2段階の一般化（一般化DAEとGenerative Stochastic Network）を紹介しました。
+生成モデルの解析周りは個人的に慣れない分野で、今回の話の中にも咀嚼できていない点が多々ありますが、DAEという一つのモデルからこれだけ多様な話題が出てくるのは面白いなあと思っています。
+一般化について、特にGSNについては、具体的な応用が来年には出てくるのかなと想像しています。
+特に教師あり学習のテクニックが使えるというのが気になっています。
+これがブレイクスルーになるかはわかりませんが、これからも追っていきたいです。</p>
+
+<p>MLACについては他の記事も読ませていただいており、今回の記事執筆自体も自分自身勉強になりました。
+MLACの著者の皆様、特に企画をしてくださった@naoya_tさん、ありがとうございました。</p>
+
+<h2 id="section-1">参考文献</h2>
+
+<p>[1] Pascal Vincent, Hugo Larochelle, Yoshua Bengio and Pierre-Antoine Manzagol. <a href="http://www.iro.umontreal.ca/~vincentp/Publications/vincent_icml_2008.pdf">Extracting and Composing Robust Features with Denoising Autoencoders</a>. <em>Proc. of ICML, 2008</em>.<br />
+[2] Salah Rifai, Pascal Vincent, Xavier Muller, Xavier Glorot and Yoshua Bengio. <a href="http://www.icml-2011.org/papers/455_icmlpaper.pdf">Contractive Auto-Encoders: Explicit Invariance During Feature Extraction</a>. <em>Proc. of ICML, 2011</em>.<br />
+[3] Pascal Vincent. <a href="http://www.iro.umontreal.ca/~vincentp/Publications/DenoisingScoreMatching_NeuralComp2011.pdf">A Connection Between Score Matching and Denoising Autoencoders</a>. <em>Neural Computation, 2011</em>.<br />
+[4] Aapo Hyv̈arinen. <a href="http://machinelearning.wustl.edu/mlpapers/paper_files/Hyvarinen05.pdf">Estimation of Non-Normalized Statistical Models by Score Matching</a>. <em>Journal of Machine Learning Research 6, 2005</em>.<br />
+[5] Yoshua Bengio, Li Yao, Guillaume Alain, and Pascal Vincent. <a href="http://papers.nips.cc/paper/5023-generalized-denoising-auto-encoders-as-generative-models">Generalized Denoising Auto-Encoders as Generative Models</a>. <em>NIPS, 2013</em>.<br />
+[6] Yoshua Bengio. <a href="http://arxiv.org/abs/1306.1091">Deep Generative Stochastic Networks Trainable by Backprop</a>. <em>arXiv:1306.1091, 2013</em>.<br />
+[7] Yoshua Bengio. <a href="http://arxiv.org/abs/1305.2982">Estimating or Propagating Gradients Through Stochastic Neurons</a>. <em>arXiv:1305.2982, 2013</em>.</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>といっても僕自身これらを自分で実装して動かしたわけではなく、論文追っかけてるだけなので誰かの受け売り状態なのですが。。。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>この定義は統計学におけるもともとの「スコア関数』の定義とは異なるそうです。もともとは確率モデルの対数密度勾配を、入力変数ではなくモデルのパラメータについて取ったものがスコア関数でした。<a href="#fnref:2" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Juliaを使ってみた]]></title>
+    <link href="http://beam2d.github.io/blog/2013/09/20/itq-by-julia/"/>
+    <updated>2013-09-20T22:38:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/09/20/itq-by-julia</id>
+    <content type="html"><![CDATA[<p>ブログ遅れちゃいましたが。
+今週のはじめにJuliaで書いたPCA hashとITQの実装を公開しました。</p>
+
+<p><a href="https://github.com/beam2d/julia-pcahash">https://github.com/beam2d/julia-pcahash</a></p>
+
+<p>Juliaというのは数値計算・科学計算がメインターゲットの新しい言語です。
+つい最近触り始めたんですが、今のところ割りと良好です。
+julia-pcahashは勉強用に書きました。</p>
+
+<!-- more -->
+
+<p>Juliaには以下の様な特徴があります（僕の目にぱっとついたところだけで）。</p>
+
+<ul>
+  <li>多次元配列が簡単に扱えて線形代数計算が充実している(MATLABやnumpy/scipyのノリ)</li>
+  <li>文法はMATLABとRubyとPythonを混ぜたような感じ</li>
+  <li>LLVMベースで、JITが走る</li>
+  <li>動的型付けで、型アノテーションや多相型があり、型推論による静的最適化が走る</li>
+  <li>他の科学技術用言語にくらべて数値計算以外の処理が比較的速い</li>
+  <li>Juliaの構文自体をデータ構造として扱えて、マクロが書ける(LISPみたいに<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>)</li>
+</ul>
+
+<p>Juliaでコード書いてみてわかったことが以下のとおり。</p>
+
+<ul>
+  <li>ファイルの読み書きは割りと簡単にできる</li>
+  <li>行列計算はMATLABやnumpy/scipyみたいに書けるが細かい所はいろいろ違う</li>
+  <li>1-originはやっぱり不便</li>
+  <li>マクロが結構便利に見える</li>
+  <li>BitArrayは2階以上でもびっちり詰まっていて、そこを意識しないと性能劣化する</li>
+  <li>引数・戻り値が簡単な型（行列含む）なら、Cのコード呼び出し(ccall)はとても簡単
+    <ul>
+      <li>今回、ハミング距離の計算をSSEでやるコードをCで書いて、それを呼び出した<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></li>
+    </ul>
+  </li>
+  <li>標準ライブラリはまだ痒いところにちょっと手が届かないレベル</li>
+  <li>パッケージは盛んに開発されている雰囲気</li>
+  <li>起動が重い</li>
+</ul>
+
+<p>速度もそこそこ速いように思います。
+そのうちちゃんとC++やPythonと比較したいところ。
+もうちょっと使ってみようと思います。</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>LISP詳しくないですがそういう感じらしいです、homoiconicというらしい。ちなみにJuliaのパーザはSchemeで書かれています。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>Juliaで直接 nnz(x $ y) のように書くこともできますが、Cで書いたSSE4のコードの方が手元の環境では3倍ほど速かった<a href="#fnref:2" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Isotropic Hashingと線形ハッシュ学習]]></title>
+    <link href="http://beam2d.github.io/blog/2013/02/23/isohash/"/>
+    <updated>2013-02-23T14:53:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/02/23/isohash</id>
+    <content type="html"><![CDATA[<p>今日は前回に引き続きNIPS2012の論文を紹介します。
+前回紹介した<a href="/blog/2013/01/26/super-bit-lsh/">Super-Bit LSH</a>はデータ非依存のハッシュ法でしたが、Isotropic Hashing (以下IsoHash)はデータを使った教師なしハッシュ学習です。</p>
+
+<p>Weihao Kong and Wu-Jun Li. <a href="http://www.cs.sjtu.edu.cn/~liwujun/paper/NIPS12-IsoHash.pdf">Isotropic Hashing</a>. NIPS 2012.</p>
+
+<!-- more -->
+
+<p>IsoHashはPCAHがベースになっています。
+ハッシュの学習ではよく、次元削減してから各次元を正か負かで $\pm1$ に潰す、ということをします<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>。
+PCAHはこの次元削減としてPCAを用いるというものです。
+非常にお手軽ですが、PCA軸は次元によって情報量に偏りがあるのに等しく1bitずつに潰してしまうので、近傍探索の精度がよくありません。
+そこでIsoHashでは、PCAで次元削減したあとに、偏りがならされるように回転してから潰します。
+偏りの指標としては、データ集合に対する各次元の分散を用います。</p>
+
+<p>学習に用いるデータ行列を $X\in\mathbb R^{d\times n}$ とおき、PCAで次元削減する行列を $W\in\mathbb R^{d\times m}$ とおきます。
+このとき、直交行列 $Q\in\mathcal O(m)$ を用いて、 $Q^\top W^\top XX^\top WQ$ の対角成分がすべて等しくなるようにします（対角成分の値はPCAの固有値の平均になります）。
+$Q$ を求めたいですが、IsoHashでは $Q^\top W^\top XX^\top WQ$ という形の行列の集合と、対角成分がすべて等しい行列の集合、の共通部分を求めることにします。
+この問題が解ければ、固有値分解をして $Q$ が取り出せます。
+論文では、2つの集合間を交互に射影するLift and Projectionという方法と、直交群上で対角成分の二乗和誤差を最小化する問題として勾配を用いて解くGradient Flowという方法の2つを提案しています。
+実験を見る限りどっちが優れてるということもないようです。</p>
+
+<p>PCAHを改良した線形ハッシュ学習としては、IsoHashの前にもIterative Quantization (ITQ <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>)という手法が提案されていました。
+ITQでは、 $\pm1$ に潰す前の各次元の値ができるだけ $\pm1$ に近くなるように線形変換を行います。
+この最適化はk-Meansのような感じで線形変換の更新とハッシュ値の更新を交互に行うのですが、ここが重いのが欠点でした。
+IsoHashはITQと精度的には互角ぐらいのようで、かつ学習がそこそこ速い（特にPCAしたあとはデータ数によらない）のが売りのようです。</p>
+
+<p>あれこれ書いた上でちゃぶ台ひっくり返す感じなのですが、各次元の偏りをならす一番お手軽な方法は、ランダム行列をかけるというやり方です。
+ITQの論文ではPCA後にランダム行列をかけてから潰す、という方法も比較してますが、実はこれで結構いい精度が出ちゃいます。
+なので現時点では、Practicalにはランダム行列を使うのが良いかもしれません。</p>
+
+<p>あと、論文に沿ってPCAを使って書いてきましたが、非線形な次元削減の上にも乗っかるはずです。</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>事前にデータを平均が0になるように正規化しておくことが多いです。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>Yunchao Gong and Svetlana Lazebnik.
+<a href="http://www.cs.illinois.edu/homes/slazebni/publications/cvpr11_small_code.pdf">Iterative Quantization: A Procrustean Approach to Learning Binary Codes</a>.
+CVPR, 2011.<a href="#fnref:2" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Super-Bit LSH]]></title>
+    <link href="http://beam2d.github.io/blog/2013/01/26/super-bit-lsh/"/>
+    <updated>2013-01-26T13:54:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2013/01/26/super-bit-lsh</id>
+    <content type="html"><![CDATA[<p>今日は、すこし前に読んだSuper-Bit LSH (SB-LSH)という手法を簡単に紹介します。
+これは角類似度<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>に対するランダム射影LSH<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>の改良版です。</p>
+
+<p>Jianqiu Ji, Jianmin Li, Shuicheng Yany, Bo Zhang, Qi Tianz.<br />
+Super-Bit Locality-Sensitive Hashing. NIPS 2012.</p>
+
+<!-- more -->
+
+<p>ランダム射影LSHの解説は<a href="http://blog.jubat.us/2012/05/17-web.html" title="第17回 データマイニング+WEB＠東京で発表しました | Jubatus Blog">海野さんのスライド(29-30ページ目)</a>がわかりやすいです。
+ランダム射影LSHを使うと、角類似度の不偏推定量が得られます。</p>
+
+<p>Super-Bit LSHではこれをNビットごとにグループ分けして、各グループ内の射影ベクトルを直交させるというものです。
+直交化はたとえばGram-Schmidtの直交化法を使います。
+こうすると、推定量の分散がただのランダム射影よりも小さくなるということです。
+論文ではこのNビットのグループをSuper Bitと呼んでいます。</p>
+
+<p>論文中の実験を見る限り、特に直角に近い角度の推定が正確になるようです。
+これは近傍探索に使うときにはあまり問題にならないですが、別の用途で純粋に角度の推定値が欲しい時や、Active Learningに用いるとき<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>には役立ちそうです。</p>
+
+<p>ただ、次元がとても高い場合、ランダムなベクトル同士がほとんど直交する（大数の法則）ので、あまり効果はないかもね、と書かれています。
+論文中の実験ではSIFT特徴量(128次元)とBoVW(3125次元)を使っているようで、これくらいだと有効みたいです。
+また、自然言語処理などでよく事前に次元数がわからない場合がありますが、そういう場合も使えなさそうです。</p>
+
+<p>ランダム射影LSHはLSHの中でもかなり古典的なアルゴリズムですが、データ非依存という設定でその精度が改良されるのはおそらく初めてだと思います（論文中でもそう書かれています）。
+今まではいろんな種類の類似度に対するLSHの開発が盛んでしたが、そろそろ既存のLSHを改良する</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>2つのベクトル $x, y$ に対して $1-{1\over\pi}\cos^{-1}\left({x\cdot y\over\lVert x\lVert\,\lVert y\lVert}\right)\in[0, 1]$ を角類似度(angular similarity)と呼びます。
+Cosine類似度やArccos類似度と呼ばれることもあります。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>SimHash、Cosine LSH、Arccos LSHなどいろんな呼ばれ方をしています。
+論文中ではSRP-LSH (Sign-random-projection LSH) と呼んでいます。<a href="#fnref:2" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p>重みベクトルとできるだけ直交する教師データを選びたいときなど。<a href="#fnref:3" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+</feed>
