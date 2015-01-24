@@ -4,7 +4,7 @@
   <title><![CDATA[@beam2d]]></title>
   <link href="http://beam2d.github.io/atom.xml" rel="self"/>
   <link href="http://beam2d.github.io/"/>
-  <updated>2014-12-31T10:50:51+09:00</updated>
+  <updated>2015-01-24T15:26:20+09:00</updated>
   <id>http://beam2d.github.io/</id>
   <author>
     <name><![CDATA[Seiya Tokui]]></name>
@@ -14,118 +14,138 @@
 
   
   <entry>
-    <title type="html"><![CDATA[2014年ふりかえり]]></title>
-    <link href="http://beam2d.github.io/blog/2014/12/31/my-2014/"/>
-    <updated>2014-12-31T10:50:00+09:00</updated>
-    <id>http://beam2d.github.io/blog/2014/12/31/my-2014</id>
-    <content type="html"><![CDATA[<p>2014年を個人的にふりかえります。</p>
+    <title type="html"><![CDATA[NIPS2014読み会で深層半教師あり学習の論文を紹介しました]]></title>
+    <link href="http://beam2d.github.io/blog/2015/01/24/ssl-deep/"/>
+    <updated>2015-01-24T11:40:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2015/01/24/ssl-deep</id>
+    <content type="html"><![CDATA[<p>今週の火曜日 (1/20) に東大で [NIPS2014 読み会(http://connpass.com/event/10568/)] が開かれました．
+NIPS 自体の参加者数が増えているのと同様に，読み会も去年にくらべてさらに多くの人が集まりました．
+その中で僕もひとつ論文を紹介しました．</p>
 
 <!-- more -->
 
-<h2 id="deep-learning">Deep Learning</h2>
+<iframe src="http://beam2d.github.io//www.slideshare.net/slideshow/embed_code/43686520" width="425" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen=""> </iframe>
+<div style="margin-bottom:5px"> <strong> <a href="http://beam2d.github.io//www.slideshare.net/beam2d/semisupervised-learning-with-deep-generative-models" title="論文紹介 Semi-supervised Learning with Deep Generative Models" target="_blank">論文紹介 Semi-supervised Learning with Deep Generative Models</a> </strong> from <strong><a href="http://beam2d.github.io//www.slideshare.net/beam2d" target="_blank">Seiya Tokui</a></strong> </div>
 
-<p>今年は、Deep Learning を追い続ける一年でした。
-画像認識の Deep Learning は、テクニックとしてはだいぶ成熟してきた感じがします。
-今年は特に検出の性能が大幅に上がりました（GoogLeNet + MultiBox など）。
-自然言語処理の Deep Learning もスピード感が出てきました。
-それ以外にも、RNN がまともに学習できるようになってきて、面白いタスクが続々出てきました。</p>
+<p>紹介した論文の著者は，スライド中にも出てくる変分 AutoEncoder の考案者です．
+変分 AE では，生成モデルと認識モデルをそれぞれニューラルネットで定義して，確率変数としてそれらの出力をパラメータとする正規分布を使いました．
+生成モデルを認識モデルで近似したときの変分下界は，認識モデルに関する期待値の形をしています．</p>
 
-<p>教師なし学習は相変わらず、着々と進みつつもまだブレイクスルーはない印象です。
-深い有向確率モデルの研究が今年は盛んでした。
-一方、RBM ベースの手法は成熟してきて、モデルをいじって応用する段階にあるようです。</p>
+<p>このように，最適化の対象となる分布に関する期待値の最適化は，一般には REINFORCE アルゴリズムによる勾配法を使います．
+REINFORCE アルゴリズムは，期待値を積分で書いた時に，積の微分を使って勾配を計算し，それを対数微分の公式 $x’ = (\log x)’ x$ をつかって $q(\mathbf z | \mathbf x)$ に関する期待値の形に戻すことで導出できます．
+これをサンプリングにより近似しますが，この方法で得られる勾配のサンプルは大きな分散を持ち，学習が非常に遅いという問題があります．
+変分 AE の学習アルゴリズム（スライド中で SGVB および SBP と書いたもの）は，正規乱数を用いた場合にこの分散の問題を解決した手法です．</p>
 
-<p>理論的にはあまり進展がありませんでした。
-Dropout の解析や応用は進んでいる印象があります。
-今はどちらかというと、実験を通じて現象論的に何が起きているかを説明するアプローチのほうが、得られるものが多いようです。</p>
+<p>今回紹介した論文は，この変分 AE の半教師あり学習への応用です．
+かなり素直な拡張で，査読でも straight forward ではないかと指摘されていました．
+個人的には実験が面白いのと，生成・認識モデルはもっと知られても良いと思ったので，紹介させていただきました．</p>
 
-<p>今年は Google の論文に遭遇する回数がとても増えた気がします。</p>
+<p>さて，この生成モデルと認識モデルを同時に学習するという話は，僕の知る限りでは <a href="https://www.cs.toronto.edu/~hinton/helmholtz.html">1994～1996 年あたりに Hinton がやっていた仕事</a>が源流のようです．
+当時 Hinton は，各変数が二値を取るような多層のベイジアンネット（Sigmoid Belief Net などとも呼ばれます）をおもな対象としていました．
+生成モデル $p$ と認識モデル $q$ の間で，$KL(q \| p)$ を最小化するような学習法を Helmholz Machine と呼んでいます．
+Helmholz Machine の学習方法として 1995 年に Hinton が考案したのが Wake-Sleep アルゴリズムです．
+このアルゴリズムに対しては，最近 <a href="http://arxiv.org/abs/1406.2751">Reweighted Wake-Sleep</a> という発展形も提案されています．
+変分 AE では，Sigmoid Belief Net にかわって，潜在変数と観測変数の関係を決定的な多層パーセプトロンで与えています．</p>
 
-<h2 id="section">対外発表</h2>
+<p>深層学習の文脈で生成モデルというと Deep Belief Net や Deep Boltzmann Machine が主流です．
+これらは非常に高い表現力を持っていて，おもしろい実験結果がたくさんあります．
+一方，これらのモデルは計算において扱いづらいのが問題です．
+たとえば，Deep Belief Net は，単体では推論できません．
+Deep Boltzmann Machine は推論が可能ですが，MCMC を必要とし，計算コストがかかります．</p>
 
-<p>今年はいろいろなところで Deep Learning の話をさせていただきました。</p>
+<p>変分 AE のような生成・認識モデルは，推論が簡単なのがウリです．
+生成も認識もただの伝承サンプリングですみ，MCMC が必要ありません．
+MCMC が必要ない深層生成モデルとしては，ほかに NADE など，Sigmoid Belief Net を拡張する研究があります．</p>
 
-<iframe src="http://www.slideshare.net/slideshow/embed_code/30334293 " width="595" height="446" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen=""></iframe>
+<p>もうひとつ，伝承サンプリングが可能な新しいモデルとして <a href="http://papers.nips.cc/paper/5423-generative-adversarial-nets">Generative Adversarial Nets</a> というのもあります．
+このモデルは，ニューラルネットで定義した生成モデルと，やはりニューラルネットで定義した識別モデルからなります．
+識別モデルは，与えられたデータが真のデータ分布（または経験分布）から生成されたものなのか，あるいは学習中の生成モデルから生成されたものなのかを判別します．
+学習のときにはこれらを同時に最適化します．
+GAN は，学習のときに推論が必要ないというおもしろい特徴をもっています．
+一方で，裏を返せば GAN は推論器を学習しないため，推論をしたかったら別に推論モデルを学習させる必要があります．</p>
 
-<p><a href="http://connpass.com/event/4728/">NIPS 読み会</a>（1月23日、<a href="http://research.preferred.jp/2014/01/nips/">まとめ</a>）では、DeViSE（およびConSE）というマルチモーダル埋め込みの手法を紹介しました。
-これらは ConvNet の出力をラベル単語の word2vec 表現に合わせるというものです。</p>
+<p>変分 AE や GAN では，深さを実現しているのは決定的なニューラルネット（多層パーセプトロン）です．
+これを誤差逆伝搬による勾配法で学習します．
+よって，これらの手法において，ニューラルネット部分の設計や最適化には，教師あり学習で培われてきた技術（dropout など）がほぼそのまま転用できます．
+このことは，データの規模が大きくなってきたときに大きなアドバンテージになるでしょう．</p>
 
-<iframe src="http://www.slideshare.net/slideshow/embed_code/30649933 " width="595" height="446" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen=""></iframe>
+<p>さて，そういうわけで，伝承サンプリングできる深層生成モデルの学習は少しずつ盛り上がっていて，個人的に注目している分野です．
+まだ小規模なデータでの実験にとどまっていますが，そろそろ大規模データでの検証もされていくのではないかと期待しています．</p>
 
-<p><a href="http://www.sig-agi.org/wba/2">全脳アーキテクチャ勉強会</a>（1月30日、<a href="http://research.preferred.jp/2014/01/whole-brain-architecture/">僕のまとめ</a>）では、Deep Learning の様々な手法を展覧会的に紹介しました。
-ちょっと五月雨式にやりすぎた感があります。
-DeepMind の買収に触れてますが、まだ1年経っていないことがおどろきです。</p>
+<p>ちなみに，この論文の著者は <a href="http://arxiv.org/abs/1412.6980">Adam</a> という最適化手法を ICLR2015 に提出しています．
+これはモーメンタム法を RMSprop に組み込んだような手法です．
+今回読み会で紹介した論文でも「モーメンタム法を使った RMSprop」を使っていましたが，それをちゃんとまとめたものが Adam ではないかと思います．
+凸な場合のリグレット解析もされていて，実験結果も安定して良いようで，こちらも気になります．</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Deep Learning と Underfitting]]></title>
+    <link href="http://beam2d.github.io/blog/2014/11/09/deep-learning-and-underfitting/"/>
+    <updated>2014-11-09T09:34:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2014/11/09/deep-learning-and-underfitting</id>
+    <content type="html"><![CDATA[<p>深層学習 (Deep Learning) で使うニューラルネットは複雑なモデルなので正則化するのが普通ですが、深層学習が成功した要因としては Overfitting（過学習）の回避よりも Underfitting の回避のほうが重要な気がしています。
+いくつか深層学習の具体的な技術を取り上げて Underfitting との関わりを考えてみたのでまとめます。</p>
 
-<p>また、上の NIPS 読み会と合わせて、ワイドサイズのスライドに挑戦しました。
-スライド自体はスペースが広く感じられ、とても作りやすかったですが、その後スライドを 4:3 のフォーマットに移植しづらくて苦労しました。
-そういうわけで、4:3 のプロジェクターが一般的なうちは、要請されない限り 4:3 で作ったほうが良いと思いました。</p>
+<!-- more -->
 
-<p><a href="http://bdm.change-jp.com/?p=1010">原財団セミナー</a>（2月4日）では、機械学習の概要を解説しました。</p>
+<p>TODO</p>
 
-<p><a href="http://www.ipsj.or.jp/event/seminar/2014/program/2014-1.html">情報処理学会セミナー</a>（6月9日）では、教師あり学習の問題設定から Deep Learning の基礎までを話しました。
-予測がテーマだったので、レコメンデーションへの応用に触れました。</p>
+<p>書く内容</p>
 
-<iframe src="http://www.slideshare.net/slideshow/embed_code/38391798 " width="595" height="446" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen=""></iframe>
+<ul>
+  <li>学習の目標hあ汎化誤差の小さいモデル・パラメータを得ること</li>
+  <li>誤差には汎化誤差、訓練誤差、最適化誤差がある</li>
+  <li>訓練誤差と比べて汎化誤差が大きい状態が overfitting</li>
+  <li>訓練誤差が大きい状態が underfitting</li>
+  <li>Underfitting の原因は二種類：モデルの表現力が足りなくてデータの本質的な傾向を捉えられない、または最適化に失敗している</li>
+  <li>最適化を無視すれば、汎化誤差と訓練誤差はトレードオフになり、モデルの表現力を調節することになる（モデル選択または正則化によって）</li>
+  <li>NN では最適化誤差が無視できない</li>
+  <li>NN については局所解を得るだけでも良さそうということがわかってきている（Backprop 論文や Saddle Free Newton 論文など）</li>
+  <li>では深層学習の具体的な進歩例を見ていくと最適化の観点から何が見えてくるか？</li>
+</ul>
 
-<p><a href="http://www.jnns.org/conference/DeepLearning.html">神経回路学会セミナー</a>（8月26日）では、Deep Learning を実装・利用面から解説しました。
-4 月に社内で <a href="https://github.com/BVLC/caffe">Caffe</a> のソースコード解説をしたことがあり、それを汎用化して話しました。
-実装の話だけでは使えないので、利用するときの注意点もまとめました。</p>
+<h2 id="cnn">CNN</h2>
 
-<iframe src="http://www.slideshare.net/slideshow/embed_code/40900689 " width="595" height="446" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen=""></iframe>
+<ul>
+  <li>結合重みに制約を入れて良い解の存在を保ったままパラメータの自由度を小さくする</li>
+  <li>かつ小さくなった空間には制約からくる構造由来のプラトーがない</li>
+  <li>Pooling もパラメータを少なくする</li>
+</ul>
 
-<p>PFIセミナー（10月30日、<a href="http://www.ustream.tv/recorded/54670646">録画あり</a>）では、Recurrent Net をまとめました。
-メインは Long Short-Term Memory (LSTM) の解説で、後半にいくつか刺激的な応用・発展形を挙げています。
-LSTM RNN はまだうまくいき始めたところで、画像認識でいうと 2011〜2012 年くらいの地点にいるのかなと思います。</p>
+<h2 id="dnn">DNN</h2>
 
-<h2 id="section-1">仕事</h2>
+<ul>
+  <li>層ごとに異なる抽象度を表すようにパラメータの構造を導入することで各パラメータが直接関わる問題を単純化する、と思われている</li>
+  <li>浅いNNだとパラメータは入力データの表現に依存した局所性の中でしか動けない</li>
+  <li>深いNNの深い層のパラメータは異なる距離尺度における局所性の中で動ける</li>
+  <li>こうすることで深い層を通じて（入力データの表現から見た時に）大きく異る予測器へも短いパスで変化できるため、最適化がしやすくなる</li>
+</ul>
 
-<p>ブログに書けないことも多いですが、今年は仕事面でもいろいろ変化がありました。
-特に、所属が PFI から PFN に移りました。</p>
+<h2 id="pretraining">Pretraining</h2>
 
-<p>今年も夏季インターンを行い、僕は松元さんのメンターを務めました（<a href="http://www.ustream.tv/recorded/53153399">インターン最終発表の録画</a>）。
-Deep Q Network の拡張がテーマで、面白い議論をたくさんさせていただきました。</p>
+<ul>
+  <li>Sigmoid DNNだと入力に近い層で勾配が消える問題がある</li>
+  <li>これはつまり、深い層と浅い層でパラメータの勾配のスケールが違うために、浅い層のパラメータ次元の方向には目的関数がプラトーに近くなっていることを表す</li>
+  <li>Pretraining時には深さ由来のプラトーが現れないため、学習の初期におけるプラトーの問題をある程度回避できる</li>
+  <li>ただし教師あり学習の目的関数を反映した方向に進むとは限らないため、効果は限定的</li>
+</ul>
 
-<p>また、今年は会社の先輩方と共同でオンライン学習の本を書いていました。
-IBIS チュートリアルでこっそり宣伝があったようです。
-本はまだ完成していませんが、来年出る予定です。
-ちなみに、執筆に関しては今思うと反省点が山のようにあります。
-今後に生きると良いのですが。</p>
+<h2 id="rectifier">Rectifier</h2>
 
-<p>US への出張は 4 月に一回ありました。</p>
+<ul>
+  <li>勾配消失の問題が起きなくなる、つまり深い層と浅い層でパラメータの勾配のスケールが近づく</li>
+  <li>代わりにパラメータのスケールが大きすぎるとすぐに勾配が爆発するため、正則化等によりパラメータのスケールを小さく抑える必要がある</li>
+</ul>
 
-<h2 id="section-2">旅行</h2>
+<h2 id="section">途中の層からの教師信号</h2>
 
-<p>今年は旅行に 3 回も行きました（福岡、サイパン、函館）。</p>
-
-<p>サイパンは、新婚旅行以来はじめての海外旅行でした。
-海がきれいでとても気持ちよかったです。
-雨季だったためにほとんど曇っていたのが心残りですが、最終日は晴れていて、ギリギリまで海にいました。</p>
-
-<p>函館旅行が初めての北海道でした。
-とても寒かった。
-函館山からの夜景がきれいでした。
-2 泊 3 日でいろいろ回るのにはちょうど良い場所でした。</p>
-
-<h2 id="section-3">消費</h2>
-
-<p>今年はあまり大きな買い物をしませんでした（多分）。</p>
-
-<p>コンスタントに週 8 本前後のアニメを見続けました。
-最近はそこそこおもしろいアニメが多いと感じます。
-それとは別に『ちはやふる』のアニメにハマり、原作漫画も一気読みしました。</p>
-
-<p>冬コミに行きました。
-<a href="http://n-linear.org/">学部時代に僕がいたサークル</a>がついに壁をゲットしたと聞き、それを見に行くのが主な目的でした。
-本当に壁にいて、とても感動しました。
-ノンリニアも立派になったものだなあ。
-ちなみに、コミケに行くのは 5 年ぶりです。
-僕が初めてコミケに行ってから今年で干支が一周しましたが、あそこはずっと同じような雰囲気で良いですね。
-いろんなサークルのブースに囲まれていると、創作意欲をかきたてられます（最近なにもしてないですが）。</p>
-
-<hr />
-
-<p>以上、全体的に珍しくアクティブな一年でした。
-来年のことは、来年書こうと思います。
-それではよいお年を！</p>
+<ul>
+  <li>Very Deep NNでRectifierを使う場合、パラメータのスケールを小さく抑えるせいで浅い層のパラメータの勾配が再び小さくなってしまう</li>
+  <li>GoogLeNet論文などではこの問題に対して途中の層から教師信号を流すことで勾配を大きく保つ</li>
+  <li>効果としては pretraining と似たものだと考えられるが、識別的に学習するのもポイントかもしれない</li>
+  <li></li>
+</ul>
 ]]></content>
   </entry>
   

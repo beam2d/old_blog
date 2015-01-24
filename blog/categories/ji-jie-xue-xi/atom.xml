@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 機械学習 | @beam2d]]></title>
   <link href="http://beam2d.github.io/blog/categories/ji-jie-xue-xi/atom.xml" rel="self"/>
   <link href="http://beam2d.github.io/"/>
-  <updated>2014-12-31T10:50:51+09:00</updated>
+  <updated>2015-01-24T15:26:20+09:00</updated>
   <id>http://beam2d.github.io/</id>
   <author>
     <name><![CDATA[Seiya Tokui]]></name>
@@ -12,6 +12,142 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[NIPS2014読み会で深層半教師あり学習の論文を紹介しました]]></title>
+    <link href="http://beam2d.github.io/blog/2015/01/24/ssl-deep/"/>
+    <updated>2015-01-24T11:40:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2015/01/24/ssl-deep</id>
+    <content type="html"><![CDATA[<p>今週の火曜日 (1/20) に東大で [NIPS2014 読み会(http://connpass.com/event/10568/)] が開かれました．
+NIPS 自体の参加者数が増えているのと同様に，読み会も去年にくらべてさらに多くの人が集まりました．
+その中で僕もひとつ論文を紹介しました．</p>
+
+<!-- more -->
+
+<iframe src="http://beam2d.github.io//www.slideshare.net/slideshow/embed_code/43686520" width="425" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen=""> </iframe>
+<div style="margin-bottom:5px"> <strong> <a href="http://beam2d.github.io//www.slideshare.net/beam2d/semisupervised-learning-with-deep-generative-models" title="論文紹介 Semi-supervised Learning with Deep Generative Models" target="_blank">論文紹介 Semi-supervised Learning with Deep Generative Models</a> </strong> from <strong><a href="http://beam2d.github.io//www.slideshare.net/beam2d" target="_blank">Seiya Tokui</a></strong> </div>
+
+<p>紹介した論文の著者は，スライド中にも出てくる変分 AutoEncoder の考案者です．
+変分 AE では，生成モデルと認識モデルをそれぞれニューラルネットで定義して，確率変数としてそれらの出力をパラメータとする正規分布を使いました．
+生成モデルを認識モデルで近似したときの変分下界は，認識モデルに関する期待値の形をしています．</p>
+
+<p>このように，最適化の対象となる分布に関する期待値の最適化は，一般には REINFORCE アルゴリズムによる勾配法を使います．
+REINFORCE アルゴリズムは，期待値を積分で書いた時に，積の微分を使って勾配を計算し，それを対数微分の公式 $x’ = (\log x)’ x$ をつかって $q(\mathbf z | \mathbf x)$ に関する期待値の形に戻すことで導出できます．
+これをサンプリングにより近似しますが，この方法で得られる勾配のサンプルは大きな分散を持ち，学習が非常に遅いという問題があります．
+変分 AE の学習アルゴリズム（スライド中で SGVB および SBP と書いたもの）は，正規乱数を用いた場合にこの分散の問題を解決した手法です．</p>
+
+<p>今回紹介した論文は，この変分 AE の半教師あり学習への応用です．
+かなり素直な拡張で，査読でも straight forward ではないかと指摘されていました．
+個人的には実験が面白いのと，生成・認識モデルはもっと知られても良いと思ったので，紹介させていただきました．</p>
+
+<p>さて，この生成モデルと認識モデルを同時に学習するという話は，僕の知る限りでは <a href="https://www.cs.toronto.edu/~hinton/helmholtz.html">1994～1996 年あたりに Hinton がやっていた仕事</a>が源流のようです．
+当時 Hinton は，各変数が二値を取るような多層のベイジアンネット（Sigmoid Belief Net などとも呼ばれます）をおもな対象としていました．
+生成モデル $p$ と認識モデル $q$ の間で，$KL(q \| p)$ を最小化するような学習法を Helmholz Machine と呼んでいます．
+Helmholz Machine の学習方法として 1995 年に Hinton が考案したのが Wake-Sleep アルゴリズムです．
+このアルゴリズムに対しては，最近 <a href="http://arxiv.org/abs/1406.2751">Reweighted Wake-Sleep</a> という発展形も提案されています．
+変分 AE では，Sigmoid Belief Net にかわって，潜在変数と観測変数の関係を決定的な多層パーセプトロンで与えています．</p>
+
+<p>深層学習の文脈で生成モデルというと Deep Belief Net や Deep Boltzmann Machine が主流です．
+これらは非常に高い表現力を持っていて，おもしろい実験結果がたくさんあります．
+一方，これらのモデルは計算において扱いづらいのが問題です．
+たとえば，Deep Belief Net は，単体では推論できません．
+Deep Boltzmann Machine は推論が可能ですが，MCMC を必要とし，計算コストがかかります．</p>
+
+<p>変分 AE のような生成・認識モデルは，推論が簡単なのがウリです．
+生成も認識もただの伝承サンプリングですみ，MCMC が必要ありません．
+MCMC が必要ない深層生成モデルとしては，ほかに NADE など，Sigmoid Belief Net を拡張する研究があります．</p>
+
+<p>もうひとつ，伝承サンプリングが可能な新しいモデルとして <a href="http://papers.nips.cc/paper/5423-generative-adversarial-nets">Generative Adversarial Nets</a> というのもあります．
+このモデルは，ニューラルネットで定義した生成モデルと，やはりニューラルネットで定義した識別モデルからなります．
+識別モデルは，与えられたデータが真のデータ分布（または経験分布）から生成されたものなのか，あるいは学習中の生成モデルから生成されたものなのかを判別します．
+学習のときにはこれらを同時に最適化します．
+GAN は，学習のときに推論が必要ないというおもしろい特徴をもっています．
+一方で，裏を返せば GAN は推論器を学習しないため，推論をしたかったら別に推論モデルを学習させる必要があります．</p>
+
+<p>変分 AE や GAN では，深さを実現しているのは決定的なニューラルネット（多層パーセプトロン）です．
+これを誤差逆伝搬による勾配法で学習します．
+よって，これらの手法において，ニューラルネット部分の設計や最適化には，教師あり学習で培われてきた技術（dropout など）がほぼそのまま転用できます．
+このことは，データの規模が大きくなってきたときに大きなアドバンテージになるでしょう．</p>
+
+<p>さて，そういうわけで，伝承サンプリングできる深層生成モデルの学習は少しずつ盛り上がっていて，個人的に注目している分野です．
+まだ小規模なデータでの実験にとどまっていますが，そろそろ大規模データでの検証もされていくのではないかと期待しています．</p>
+
+<p>ちなみに，この論文の著者は <a href="http://arxiv.org/abs/1412.6980">Adam</a> という最適化手法を ICLR2015 に提出しています．
+これはモーメンタム法を RMSprop に組み込んだような手法です．
+今回読み会で紹介した論文でも「モーメンタム法を使った RMSprop」を使っていましたが，それをちゃんとまとめたものが Adam ではないかと思います．
+凸な場合のリグレット解析もされていて，実験結果も安定して良いようで，こちらも気になります．</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Deep Learning と Underfitting]]></title>
+    <link href="http://beam2d.github.io/blog/2014/11/09/deep-learning-and-underfitting/"/>
+    <updated>2014-11-09T09:34:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2014/11/09/deep-learning-and-underfitting</id>
+    <content type="html"><![CDATA[<p>深層学習 (Deep Learning) で使うニューラルネットは複雑なモデルなので正則化するのが普通ですが、深層学習が成功した要因としては Overfitting（過学習）の回避よりも Underfitting の回避のほうが重要な気がしています。
+いくつか深層学習の具体的な技術を取り上げて Underfitting との関わりを考えてみたのでまとめます。</p>
+
+<!-- more -->
+
+<p>TODO</p>
+
+<p>書く内容</p>
+
+<ul>
+  <li>学習の目標hあ汎化誤差の小さいモデル・パラメータを得ること</li>
+  <li>誤差には汎化誤差、訓練誤差、最適化誤差がある</li>
+  <li>訓練誤差と比べて汎化誤差が大きい状態が overfitting</li>
+  <li>訓練誤差が大きい状態が underfitting</li>
+  <li>Underfitting の原因は二種類：モデルの表現力が足りなくてデータの本質的な傾向を捉えられない、または最適化に失敗している</li>
+  <li>最適化を無視すれば、汎化誤差と訓練誤差はトレードオフになり、モデルの表現力を調節することになる（モデル選択または正則化によって）</li>
+  <li>NN では最適化誤差が無視できない</li>
+  <li>NN については局所解を得るだけでも良さそうということがわかってきている（Backprop 論文や Saddle Free Newton 論文など）</li>
+  <li>では深層学習の具体的な進歩例を見ていくと最適化の観点から何が見えてくるか？</li>
+</ul>
+
+<h2 id="cnn">CNN</h2>
+
+<ul>
+  <li>結合重みに制約を入れて良い解の存在を保ったままパラメータの自由度を小さくする</li>
+  <li>かつ小さくなった空間には制約からくる構造由来のプラトーがない</li>
+  <li>Pooling もパラメータを少なくする</li>
+</ul>
+
+<h2 id="dnn">DNN</h2>
+
+<ul>
+  <li>層ごとに異なる抽象度を表すようにパラメータの構造を導入することで各パラメータが直接関わる問題を単純化する、と思われている</li>
+  <li>浅いNNだとパラメータは入力データの表現に依存した局所性の中でしか動けない</li>
+  <li>深いNNの深い層のパラメータは異なる距離尺度における局所性の中で動ける</li>
+  <li>こうすることで深い層を通じて（入力データの表現から見た時に）大きく異る予測器へも短いパスで変化できるため、最適化がしやすくなる</li>
+</ul>
+
+<h2 id="pretraining">Pretraining</h2>
+
+<ul>
+  <li>Sigmoid DNNだと入力に近い層で勾配が消える問題がある</li>
+  <li>これはつまり、深い層と浅い層でパラメータの勾配のスケールが違うために、浅い層のパラメータ次元の方向には目的関数がプラトーに近くなっていることを表す</li>
+  <li>Pretraining時には深さ由来のプラトーが現れないため、学習の初期におけるプラトーの問題をある程度回避できる</li>
+  <li>ただし教師あり学習の目的関数を反映した方向に進むとは限らないため、効果は限定的</li>
+</ul>
+
+<h2 id="rectifier">Rectifier</h2>
+
+<ul>
+  <li>勾配消失の問題が起きなくなる、つまり深い層と浅い層でパラメータの勾配のスケールが近づく</li>
+  <li>代わりにパラメータのスケールが大きすぎるとすぐに勾配が爆発するため、正則化等によりパラメータのスケールを小さく抑える必要がある</li>
+</ul>
+
+<h2 id="section">途中の層からの教師信号</h2>
+
+<ul>
+  <li>Very Deep NNでRectifierを使う場合、パラメータのスケールを小さく抑えるせいで浅い層のパラメータの勾配が再び小さくなってしまう</li>
+  <li>GoogLeNet論文などではこの問題に対して途中の層から教師信号を流すことで勾配を大きく保つ</li>
+  <li>効果としては pretraining と似たものだと考えられるが、識別的に学習するのもポイントかもしれない</li>
+  <li></li>
+</ul>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[半教師あり学習はドメイン適応か？]]></title>
@@ -335,105 +471,6 @@ julia-pcahashは勉強用に書きました。</p>
     </li>
     <li id="fn:2">
       <p>Juliaで直接 nnz(x $ y) のように書くこともできますが、Cで書いたSSE4のコードの方が手元の環境では3倍ほど速かった<a href="#fnref:2" rel="reference">&#8617;</a></p>
-    </li>
-  </ol>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Isotropic Hashingと線形ハッシュ学習]]></title>
-    <link href="http://beam2d.github.io/blog/2013/02/23/isohash/"/>
-    <updated>2013-02-23T14:53:00+09:00</updated>
-    <id>http://beam2d.github.io/blog/2013/02/23/isohash</id>
-    <content type="html"><![CDATA[<p>今日は前回に引き続きNIPS2012の論文を紹介します。
-前回紹介した<a href="/blog/2013/01/26/super-bit-lsh/">Super-Bit LSH</a>はデータ非依存のハッシュ法でしたが、Isotropic Hashing (以下IsoHash)はデータを使った教師なしハッシュ学習です。</p>
-
-<p>Weihao Kong and Wu-Jun Li. <a href="http://www.cs.sjtu.edu.cn/~liwujun/paper/NIPS12-IsoHash.pdf">Isotropic Hashing</a>. NIPS 2012.</p>
-
-<!-- more -->
-
-<p>IsoHashはPCAHがベースになっています。
-ハッシュの学習ではよく、次元削減してから各次元を正か負かで $\pm1$ に潰す、ということをします<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>。
-PCAHはこの次元削減としてPCAを用いるというものです。
-非常にお手軽ですが、PCA軸は次元によって情報量に偏りがあるのに等しく1bitずつに潰してしまうので、近傍探索の精度がよくありません。
-そこでIsoHashでは、PCAで次元削減したあとに、偏りがならされるように回転してから潰します。
-偏りの指標としては、データ集合に対する各次元の分散を用います。</p>
-
-<p>学習に用いるデータ行列を $X\in\mathbb R^{d\times n}$ とおき、PCAで次元削減する行列を $W\in\mathbb R^{d\times m}$ とおきます。
-このとき、直交行列 $Q\in\mathcal O(m)$ を用いて、 $Q^\top W^\top XX^\top WQ$ の対角成分がすべて等しくなるようにします（対角成分の値はPCAの固有値の平均になります）。
-$Q$ を求めたいですが、IsoHashでは $Q^\top W^\top XX^\top WQ$ という形の行列の集合と、対角成分がすべて等しい行列の集合、の共通部分を求めることにします。
-この問題が解ければ、固有値分解をして $Q$ が取り出せます。
-論文では、2つの集合間を交互に射影するLift and Projectionという方法と、直交群上で対角成分の二乗和誤差を最小化する問題として勾配を用いて解くGradient Flowという方法の2つを提案しています。
-実験を見る限りどっちが優れてるということもないようです。</p>
-
-<p>PCAHを改良した線形ハッシュ学習としては、IsoHashの前にもIterative Quantization (ITQ <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>)という手法が提案されていました。
-ITQでは、 $\pm1$ に潰す前の各次元の値ができるだけ $\pm1$ に近くなるように線形変換を行います。
-この最適化はk-Meansのような感じで線形変換の更新とハッシュ値の更新を交互に行うのですが、ここが重いのが欠点でした。
-IsoHashはITQと精度的には互角ぐらいのようで、かつ学習がそこそこ速い（特にPCAしたあとはデータ数によらない）のが売りのようです。</p>
-
-<p>あれこれ書いた上でちゃぶ台ひっくり返す感じなのですが、各次元の偏りをならす一番お手軽な方法は、ランダム行列をかけるというやり方です。
-ITQの論文ではPCA後にランダム行列をかけてから潰す、という方法も比較してますが、実はこれで結構いい精度が出ちゃいます。
-なので現時点では、Practicalにはランダム行列を使うのが良いかもしれません。</p>
-
-<p>あと、論文に沿ってPCAを使って書いてきましたが、非線形な次元削減の上にも乗っかるはずです。</p>
-<div class="footnotes">
-  <ol>
-    <li id="fn:1">
-      <p>事前にデータを平均が0になるように正規化しておくことが多いです。<a href="#fnref:1" rel="reference">&#8617;</a></p>
-    </li>
-    <li id="fn:2">
-      <p>Yunchao Gong and Svetlana Lazebnik.
-<a href="http://www.cs.illinois.edu/homes/slazebni/publications/cvpr11_small_code.pdf">Iterative Quantization: A Procrustean Approach to Learning Binary Codes</a>.
-CVPR, 2011.<a href="#fnref:2" rel="reference">&#8617;</a></p>
-    </li>
-  </ol>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Super-Bit LSH]]></title>
-    <link href="http://beam2d.github.io/blog/2013/01/26/super-bit-lsh/"/>
-    <updated>2013-01-26T13:54:00+09:00</updated>
-    <id>http://beam2d.github.io/blog/2013/01/26/super-bit-lsh</id>
-    <content type="html"><![CDATA[<p>今日は、すこし前に読んだSuper-Bit LSH (SB-LSH)という手法を簡単に紹介します。
-これは角類似度<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>に対するランダム射影LSH<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>の改良版です。</p>
-
-<p>Jianqiu Ji, Jianmin Li, Shuicheng Yany, Bo Zhang, Qi Tianz.<br />
-Super-Bit Locality-Sensitive Hashing. NIPS 2012.</p>
-
-<!-- more -->
-
-<p>ランダム射影LSHの解説は<a href="http://blog.jubat.us/2012/05/17-web.html" title="第17回 データマイニング+WEB＠東京で発表しました | Jubatus Blog">海野さんのスライド(29-30ページ目)</a>がわかりやすいです。
-ランダム射影LSHを使うと、角類似度の不偏推定量が得られます。</p>
-
-<p>Super-Bit LSHではこれをNビットごとにグループ分けして、各グループ内の射影ベクトルを直交させるというものです。
-直交化はたとえばGram-Schmidtの直交化法を使います。
-こうすると、推定量の分散がただのランダム射影よりも小さくなるということです。
-論文ではこのNビットのグループをSuper Bitと呼んでいます。</p>
-
-<p>論文中の実験を見る限り、特に直角に近い角度の推定が正確になるようです。
-これは近傍探索に使うときにはあまり問題にならないですが、別の用途で純粋に角度の推定値が欲しい時や、Active Learningに用いるとき<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>には役立ちそうです。</p>
-
-<p>ただ、次元がとても高い場合、ランダムなベクトル同士がほとんど直交する（大数の法則）ので、あまり効果はないかもね、と書かれています。
-論文中の実験ではSIFT特徴量(128次元)とBoVW(3125次元)を使っているようで、これくらいだと有効みたいです。
-また、自然言語処理などでよく事前に次元数がわからない場合がありますが、そういう場合も使えなさそうです。</p>
-
-<p>ランダム射影LSHはLSHの中でもかなり古典的なアルゴリズムですが、データ非依存という設定でその精度が改良されるのはおそらく初めてだと思います（論文中でもそう書かれています）。
-今まではいろんな種類の類似度に対するLSHの開発が盛んでしたが、そろそろ既存のLSHを改良する</p>
-<div class="footnotes">
-  <ol>
-    <li id="fn:1">
-      <p>2つのベクトル $x, y$ に対して $1-{1\over\pi}\cos^{-1}\left({x\cdot y\over\lVert x\lVert\,\lVert y\lVert}\right)\in[0, 1]$ を角類似度(angular similarity)と呼びます。
-Cosine類似度やArccos類似度と呼ばれることもあります。<a href="#fnref:1" rel="reference">&#8617;</a></p>
-    </li>
-    <li id="fn:2">
-      <p>SimHash、Cosine LSH、Arccos LSHなどいろんな呼ばれ方をしています。
-論文中ではSRP-LSH (Sign-random-projection LSH) と呼んでいます。<a href="#fnref:2" rel="reference">&#8617;</a></p>
-    </li>
-    <li id="fn:3">
-      <p>重みベクトルとできるだけ直交する教師データを選びたいときなど。<a href="#fnref:3" rel="reference">&#8617;</a></p>
     </li>
   </ol>
 </div>
