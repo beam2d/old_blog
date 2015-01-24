@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 機械学習 | @beam2d]]></title>
   <link href="http://beam2d.github.io/blog/categories/ji-jie-xue-xi/atom.xml" rel="self"/>
   <link href="http://beam2d.github.io/"/>
-  <updated>2015-01-24T15:26:20+09:00</updated>
+  <updated>2015-01-24T15:34:20+09:00</updated>
   <id>http://beam2d.github.io/</id>
   <author>
     <name><![CDATA[Seiya Tokui]]></name>
@@ -16,9 +16,9 @@
   <entry>
     <title type="html"><![CDATA[NIPS2014読み会で深層半教師あり学習の論文を紹介しました]]></title>
     <link href="http://beam2d.github.io/blog/2015/01/24/ssl-deep/"/>
-    <updated>2015-01-24T11:40:00+09:00</updated>
+    <updated>2015-01-24T15:30:00+09:00</updated>
     <id>http://beam2d.github.io/blog/2015/01/24/ssl-deep</id>
-    <content type="html"><![CDATA[<p>今週の火曜日 (1/20) に東大で [NIPS2014 読み会(http://connpass.com/event/10568/)] が開かれました．
+    <content type="html"><![CDATA[<p>今週の火曜日 (1/20) に東大で <a href="http://connpass.com/event/10568/">NIPS2014 読み会</a> が開かれました．
 NIPS 自体の参加者数が増えているのと同様に，読み会も去年にくらべてさらに多くの人が集まりました．
 その中で僕もひとつ論文を紹介しました．</p>
 
