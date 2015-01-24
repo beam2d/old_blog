@@ -1,0 +1,65 @@
+---
+layout: post
+title: "NIPS2014読み会で深層半教師あり学習の論文を紹介しました"
+date: 2015-01-24 11:40
+comments: true
+categories: [機械学習, 深層学習]
+---
+
+今週の火曜日 (1/20) に東大で [NIPS2014 読み会(http://connpass.com/event/10568/)] が開かれました．
+NIPS 自体の参加者数が増えているのと同様に，読み会も去年にくらべてさらに多くの人が集まりました．
+その中で僕もひとつ論文を紹介しました．
+
+<!-- more -->
+
+<iframe src="//www.slideshare.net/slideshow/embed_code/43686520" width="425" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/beam2d/semisupervised-learning-with-deep-generative-models" title="論文紹介 Semi-supervised Learning with Deep Generative Models" target="_blank">論文紹介 Semi-supervised Learning with Deep Generative Models</a> </strong> from <strong><a href="//www.slideshare.net/beam2d" target="_blank">Seiya Tokui</a></strong> </div>
+
+紹介した論文の著者は，スライド中にも出てくる変分 AutoEncoder の考案者です．
+変分 AE では，生成モデルと認識モデルをそれぞれニューラルネットで定義して，確率変数としてそれらの出力をパラメータとする正規分布を使いました．
+生成モデルを認識モデルで近似したときの変分下界は，認識モデルに関する期待値の形をしています．
+
+このように，最適化の対象となる分布に関する期待値の最適化は，一般には REINFORCE アルゴリズムによる勾配法を使います．
+REINFORCE アルゴリズムは，期待値を積分で書いた時に，積の微分を使って勾配を計算し，それを対数微分の公式 $x' = (\log x)' x$ をつかって $q(\mathbf z | \mathbf x)$ に関する期待値の形に戻すことで導出できます．
+これをサンプリングにより近似しますが，この方法で得られる勾配のサンプルは大きな分散を持ち，学習が非常に遅いという問題があります．
+変分 AE の学習アルゴリズム（スライド中で SGVB および SBP と書いたもの）は，正規乱数を用いた場合にこの分散の問題を解決した手法です．
+
+今回紹介した論文は，この変分 AE の半教師あり学習への応用です．
+かなり素直な拡張で，査読でも straight forward ではないかと指摘されていました．
+個人的には実験が面白いのと，生成・認識モデルはもっと知られても良いと思ったので，紹介させていただきました．
+
+さて，この生成モデルと認識モデルを同時に学習するという話は，僕の知る限りでは [1994～1996 年あたりに Hinton がやっていた仕事](https://www.cs.toronto.edu/~hinton/helmholtz.html)が源流のようです．
+当時 Hinton は，各変数が二値を取るような多層のベイジアンネット（Sigmoid Belief Net などとも呼ばれます）をおもな対象としていました．
+生成モデル $p$ と認識モデル $q$ の間で，$KL(q \\| p)$ を最小化するような学習法を Helmholz Machine と呼んでいます．
+Helmholz Machine の学習方法として 1995 年に Hinton が考案したのが Wake-Sleep アルゴリズムです．
+このアルゴリズムに対しては，最近 [Reweighted Wake-Sleep](http://arxiv.org/abs/1406.2751) という発展形も提案されています．
+変分 AE では，Sigmoid Belief Net にかわって，潜在変数と観測変数の関係を決定的な多層パーセプトロンで与えています．
+
+深層学習の文脈で生成モデルというと Deep Belief Net や Deep Boltzmann Machine が主流です．
+これらは非常に高い表現力を持っていて，おもしろい実験結果がたくさんあります．
+一方，これらのモデルは計算において扱いづらいのが問題です．
+たとえば，Deep Belief Net は，単体では推論できません．
+Deep Boltzmann Machine は推論が可能ですが，MCMC を必要とし，計算コストがかかります．
+
+変分 AE のような生成・認識モデルは，推論が簡単なのがウリです．
+生成も認識もただの伝承サンプリングですみ，MCMC が必要ありません．
+MCMC が必要ない深層生成モデルとしては，ほかに NADE など，Sigmoid Belief Net を拡張する研究があります．
+
+もうひとつ，伝承サンプリングが可能な新しいモデルとして [Generative Adversarial Nets](http://papers.nips.cc/paper/5423-generative-adversarial-nets) というのもあります．
+このモデルは，ニューラルネットで定義した生成モデルと，やはりニューラルネットで定義した識別モデルからなります．
+識別モデルは，与えられたデータが真のデータ分布（または経験分布）から生成されたものなのか，あるいは学習中の生成モデルから生成されたものなのかを判別します．
+学習のときにはこれらを同時に最適化します．
+GAN は，学習のときに推論が必要ないというおもしろい特徴をもっています．
+一方で，裏を返せば GAN は推論器を学習しないため，推論をしたかったら別に推論モデルを学習させる必要があります．
+
+変分 AE や GAN では，深さを実現しているのは決定的なニューラルネット（多層パーセプトロン）です．
+これを誤差逆伝搬による勾配法で学習します．
+よって，これらの手法において，ニューラルネット部分の設計や最適化には，教師あり学習で培われてきた技術（dropout など）がほぼそのまま転用できます．
+このことは，データの規模が大きくなってきたときに大きなアドバンテージになるでしょう．
+
+さて，そういうわけで，伝承サンプリングできる深層生成モデルの学習は少しずつ盛り上がっていて，個人的に注目している分野です．
+まだ小規模なデータでの実験にとどまっていますが，そろそろ大規模データでの検証もされていくのではないかと期待しています．
+
+ちなみに，この論文の著者は [Adam](http://arxiv.org/abs/1412.6980) という最適化手法を ICLR2015 に提出しています．
+これはモーメンタム法を RMSprop に組み込んだような手法です．
+今回読み会で紹介した論文でも「モーメンタム法を使った RMSprop」を使っていましたが，それをちゃんとまとめたものが Adam ではないかと思います．
+凸な場合のリグレット解析もされていて，実験結果も安定して良いようで，こちらも気になります．
