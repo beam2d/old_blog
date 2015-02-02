@@ -4,7 +4,7 @@
   <title><![CDATA[@beam2d]]></title>
   <link href="http://beam2d.github.io/atom.xml" rel="self"/>
   <link href="http://beam2d.github.io/"/>
-  <updated>2015-01-24T15:34:20+09:00</updated>
+  <updated>2015-02-02T11:52:06+09:00</updated>
   <id>http://beam2d.github.io/</id>
   <author>
     <name><![CDATA[Seiya Tokui]]></name>
@@ -192,76 +192,6 @@ IBIS チュートリアルでこっそり宣伝があったようです。
 <p>以上、全体的に珍しくアクティブな一年でした。
 来年のことは、来年書こうと思います。
 それではよいお年を！</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Deep Learning と Underfitting]]></title>
-    <link href="http://beam2d.github.io/blog/2014/11/09/deep-learning-and-underfitting/"/>
-    <updated>2014-11-09T09:34:00+09:00</updated>
-    <id>http://beam2d.github.io/blog/2014/11/09/deep-learning-and-underfitting</id>
-    <content type="html"><![CDATA[<p>深層学習 (Deep Learning) で使うニューラルネットは複雑なモデルなので正則化するのが普通ですが、深層学習が成功した要因としては Overfitting（過学習）の回避よりも Underfitting の回避のほうが重要な気がしています。
-いくつか深層学習の具体的な技術を取り上げて Underfitting との関わりを考えてみたのでまとめます。</p>
-
-<!-- more -->
-
-<p>TODO</p>
-
-<p>書く内容</p>
-
-<ul>
-  <li>学習の目標hあ汎化誤差の小さいモデル・パラメータを得ること</li>
-  <li>誤差には汎化誤差、訓練誤差、最適化誤差がある</li>
-  <li>訓練誤差と比べて汎化誤差が大きい状態が overfitting</li>
-  <li>訓練誤差が大きい状態が underfitting</li>
-  <li>Underfitting の原因は二種類：モデルの表現力が足りなくてデータの本質的な傾向を捉えられない、または最適化に失敗している</li>
-  <li>最適化を無視すれば、汎化誤差と訓練誤差はトレードオフになり、モデルの表現力を調節することになる（モデル選択または正則化によって）</li>
-  <li>NN では最適化誤差が無視できない</li>
-  <li>NN については局所解を得るだけでも良さそうということがわかってきている（Backprop 論文や Saddle Free Newton 論文など）</li>
-  <li>では深層学習の具体的な進歩例を見ていくと最適化の観点から何が見えてくるか？</li>
-</ul>
-
-<h2 id="cnn">CNN</h2>
-
-<ul>
-  <li>結合重みに制約を入れて良い解の存在を保ったままパラメータの自由度を小さくする</li>
-  <li>かつ小さくなった空間には制約からくる構造由来のプラトーがない</li>
-  <li>Pooling もパラメータを少なくする</li>
-</ul>
-
-<h2 id="dnn">DNN</h2>
-
-<ul>
-  <li>層ごとに異なる抽象度を表すようにパラメータの構造を導入することで各パラメータが直接関わる問題を単純化する、と思われている</li>
-  <li>浅いNNだとパラメータは入力データの表現に依存した局所性の中でしか動けない</li>
-  <li>深いNNの深い層のパラメータは異なる距離尺度における局所性の中で動ける</li>
-  <li>こうすることで深い層を通じて（入力データの表現から見た時に）大きく異る予測器へも短いパスで変化できるため、最適化がしやすくなる</li>
-</ul>
-
-<h2 id="pretraining">Pretraining</h2>
-
-<ul>
-  <li>Sigmoid DNNだと入力に近い層で勾配が消える問題がある</li>
-  <li>これはつまり、深い層と浅い層でパラメータの勾配のスケールが違うために、浅い層のパラメータ次元の方向には目的関数がプラトーに近くなっていることを表す</li>
-  <li>Pretraining時には深さ由来のプラトーが現れないため、学習の初期におけるプラトーの問題をある程度回避できる</li>
-  <li>ただし教師あり学習の目的関数を反映した方向に進むとは限らないため、効果は限定的</li>
-</ul>
-
-<h2 id="rectifier">Rectifier</h2>
-
-<ul>
-  <li>勾配消失の問題が起きなくなる、つまり深い層と浅い層でパラメータの勾配のスケールが近づく</li>
-  <li>代わりにパラメータのスケールが大きすぎるとすぐに勾配が爆発するため、正則化等によりパラメータのスケールを小さく抑える必要がある</li>
-</ul>
-
-<h2 id="section">途中の層からの教師信号</h2>
-
-<ul>
-  <li>Very Deep NNでRectifierを使う場合、パラメータのスケールを小さく抑えるせいで浅い層のパラメータの勾配が再び小さくなってしまう</li>
-  <li>GoogLeNet論文などではこの問題に対して途中の層から教師信号を流すことで勾配を大きく保つ</li>
-  <li>効果としては pretraining と似たものだと考えられるが、識別的に学習するのもポイントかもしれない</li>
-  <li></li>
-</ul>
 ]]></content>
   </entry>
   
