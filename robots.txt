@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://beam2d.github.io/sitemap.xml 

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 日記 | @beam2d]]></title>
+  <link href="http://beam2d.github.io/blog/categories/ri-ji/atom.xml" rel="self"/>
+  <link href="http://beam2d.github.io/"/>
+  <updated>2015-02-02T11:52:06+09:00</updated>
+  <id>http://beam2d.github.io/</id>
+  <author>
+    <name><![CDATA[Seiya Tokui]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[2014年ふりかえり]]></title>
+    <link href="http://beam2d.github.io/blog/2014/12/31/my-2014/"/>
+    <updated>2014-12-31T10:50:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2014/12/31/my-2014</id>
+    <content type="html"><![CDATA[<p>2014年を個人的にふりかえります。</p>
+
+<!-- more -->
+
+<h2 id="deep-learning">Deep Learning</h2>
+
+<p>今年は、Deep Learning を追い続ける一年でした。
+画像認識の Deep Learning は、テクニックとしてはだいぶ成熟してきた感じがします。
+今年は特に検出の性能が大幅に上がりました（GoogLeNet + MultiBox など）。
+自然言語処理の Deep Learning もスピード感が出てきました。
+それ以外にも、RNN がまともに学習できるようになってきて、面白いタスクが続々出てきました。</p>
+
+<p>教師なし学習は相変わらず、着々と進みつつもまだブレイクスルーはない印象です。
+深い有向確率モデルの研究が今年は盛んでした。
+一方、RBM ベースの手法は成熟してきて、モデルをいじって応用する段階にあるようです。</p>
+
+<p>理論的にはあまり進展がありませんでした。
+Dropout の解析や応用は進んでいる印象があります。
+今はどちらかというと、実験を通じて現象論的に何が起きているかを説明するアプローチのほうが、得られるものが多いようです。</p>
+
+<p>今年は Google の論文に遭遇する回数がとても増えた気がします。</p>
+
+<h2 id="section">対外発表</h2>
+
+<p>今年はいろいろなところで Deep Learning の話をさせていただきました。</p>
+
+<p><iframe src="http://www.slideshare.net/slideshow/embed_code/30334293 " width="595" height="446" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen></iframe> </p>
+
+<p><a href="http://connpass.com/event/4728/">NIPS 読み会</a>（1月23日、<a href="http://research.preferred.jp/2014/01/nips/">まとめ</a>）では、DeViSE（およびConSE）というマルチモーダル埋め込みの手法を紹介しました。
+これらは ConvNet の出力をラベル単語の word2vec 表現に合わせるというものです。</p>
+
+<p><iframe src="http://www.slideshare.net/slideshow/embed_code/30649933 " width="595" height="446" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen></iframe> </p>
+
+<p><a href="http://www.sig-agi.org/wba/2">全脳アーキテクチャ勉強会</a>（1月30日、<a href="http://research.preferred.jp/2014/01/whole-brain-architecture/">僕のまとめ</a>）では、Deep Learning の様々な手法を展覧会的に紹介しました。
+ちょっと五月雨式にやりすぎた感があります。
+DeepMind の買収に触れてますが、まだ1年経っていないことがおどろきです。</p>
+
+<p>また、上の NIPS 読み会と合わせて、ワイドサイズのスライドに挑戦しました。
+スライド自体はスペースが広く感じられ、とても作りやすかったですが、その後スライドを 4:3 のフォーマットに移植しづらくて苦労しました。
+そういうわけで、4:3 のプロジェクターが一般的なうちは、要請されない限り 4:3 で作ったほうが良いと思いました。</p>
+
+<p><a href="http://bdm.change-jp.com/?p=1010">原財団セミナー</a>（2月4日）では、機械学習の概要を解説しました。</p>
+
+<p><a href="http://www.ipsj.or.jp/event/seminar/2014/program/2014-1.html">情報処理学会セミナー</a>（6月9日）では、教師あり学習の問題設定から Deep Learning の基礎までを話しました。
+予測がテーマだったので、レコメンデーションへの応用に触れました。</p>
+
+<p><iframe src="http://www.slideshare.net/slideshow/embed_code/38391798 " width="595" height="446" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen></iframe> </p>
+
+<p><a href="http://www.jnns.org/conference/DeepLearning.html">神経回路学会セミナー</a>（8月26日）では、Deep Learning を実装・利用面から解説しました。
+4 月に社内で <a href="https://github.com/BVLC/caffe">Caffe</a> のソースコード解説をしたことがあり、それを汎用化して話しました。
+実装の話だけでは使えないので、利用するときの注意点もまとめました。</p>
+
+<p><iframe src="http://www.slideshare.net/slideshow/embed_code/40900689 " width="595" height="446" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen></iframe> </p>
+
+<p>PFIセミナー（10月30日、<a href="http://www.ustream.tv/recorded/54670646">録画あり</a>）では、Recurrent Net をまとめました。
+メインは Long Short-Term Memory (LSTM) の解説で、後半にいくつか刺激的な応用・発展形を挙げています。
+LSTM RNN はまだうまくいき始めたところで、画像認識でいうと 2011〜2012 年くらいの地点にいるのかなと思います。</p>
+
+<h2 id="section-1">仕事</h2>
+
+<p>ブログに書けないことも多いですが、今年は仕事面でもいろいろ変化がありました。
+特に、所属が PFI から PFN に移りました。</p>
+
+<p>今年も夏季インターンを行い、僕は松元さんのメンターを務めました（<a href="http://www.ustream.tv/recorded/53153399">インターン最終発表の録画</a>）。
+Deep Q Network の拡張がテーマで、面白い議論をたくさんさせていただきました。</p>
+
+<p>また、今年は会社の先輩方と共同でオンライン学習の本を書いていました。
+IBIS チュートリアルでこっそり宣伝があったようです。
+本はまだ完成していませんが、来年出る予定です。
+ちなみに、執筆に関しては今思うと反省点が山のようにあります。
+今後に生きると良いのですが。</p>
+
+<p>US への出張は 4 月に一回ありました。</p>
+
+<h2 id="section-2">旅行</h2>
+
+<p>今年は旅行に 3 回も行きました（福岡、サイパン、函館）。</p>
+
+<p>サイパンは、新婚旅行以来はじめての海外旅行でした。
+海がきれいでとても気持ちよかったです。
+雨季だったためにほとんど曇っていたのが心残りですが、最終日は晴れていて、ギリギリまで海にいました。</p>
+
+<p>函館旅行が初めての北海道でした。
+とても寒かった。
+函館山からの夜景がきれいでした。
+2 泊 3 日でいろいろ回るのにはちょうど良い場所でした。</p>
+
+<h2 id="section-3">消費</h2>
+
+<p>今年はあまり大きな買い物をしませんでした（多分）。</p>
+
+<p>コンスタントに週 8 本前後のアニメを見続けました。
+最近はそこそこおもしろいアニメが多いと感じます。
+それとは別に『ちはやふる』のアニメにハマり、原作漫画も一気読みしました。</p>
+
+<p>冬コミに行きました。
+<a href="http://n-linear.org/">学部時代に僕がいたサークル</a>がついに壁をゲットしたと聞き、それを見に行くのが主な目的でした。
+本当に壁にいて、とても感動しました。
+ノンリニアも立派になったものだなあ。
+ちなみに、コミケに行くのは 5 年ぶりです。
+僕が初めてコミケに行ってから今年で干支が一周しましたが、あそこはずっと同じような雰囲気で良いですね。
+いろんなサークルのブースに囲まれていると、創作意欲をかきたてられます（最近なにもしてないですが）。</p>
+
+<hr />
+
+<p>以上、全体的に珍しくアクティブな一年でした。
+来年のことは、来年書こうと思います。
+それではよいお年を！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[2014年]]></title>
+    <link href="http://beam2d.github.io/blog/2014/01/05/happy-new-year/"/>
+    <updated>2014-01-05T09:00:00+09:00</updated>
+    <id>http://beam2d.github.io/blog/2014/01/05/happy-new-year</id>
+    <content type="html"><![CDATA[<p>三が日は終わってしまったけれど、あけましておめでとうございます。</p>
+
+<!-- more -->
+
+<p>去年の個人的に印象的なイベントを公私合わせて思い出してみました。</p>
+
+<ul>
+  <li>1月: 妻の実家訪問 兼 温泉旅行</li>
+  <li>3月: 新婚旅行でフランスに行って大雪に遭う</li>
+  <li>6月: 会社の人たちと箱根旅行でケーブルカーに恐怖する</li>
+  <li>6月: 初めて国際会議(ICML, SIGMOD)に行く（聞きに行っただけ）</li>
+  <li>9月: 福岡旅行で梅ケ枝餅がおいしかった</li>
+  <li>10月: はじめてのEXPO</li>
+  <li>10月: サンフランシスコ出張</li>
+</ul>
+
+<p>去年は遠くに行く機会がとても増えたように思います。
+国際会議楽しかったけど、論文通したことないのに行ったのはずるっぽかった。</p>
+
+<p>生活面ではカフェインをあまりとらなくなりました。
+6月に急性カフェイン中毒になったのと、8月に急に心拍数が上がる現象が何度か起きて、それ以来カフェインをできるだけ取らない生活にシフトしました。
+病院で検査してもらいましたが特に異常なく、それは安心しましたが、カフェインとミント類はしばらく控えるよう言われました<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>。
+今はときどきコーヒー一杯ぐらい飲めるようになりましたが、基本的にはノンカフェイン、飲んでも一日にコーヒーか紅茶を一杯までという生活を続けています。
+カフェイン取らなくても生きていけるということを知りました。
+ただ、日本はノンカフェイン生活にやさしくない国だということも知りました。
+ほとんどの喫茶店にはデカフェ置いてないですし（例外はスタバとタリーズくらい？）、ランチのドリンクがコーヒー紅茶しかないようなお店もあります。
+コーヒーは好きなので、今でもスタバとタリーズでデカフェの豆買ってきて家では主にそれを飲んでいます（ときどき普通のコーヒー）。
+アメリカでの少ない経験上、どの喫茶店・ホテルに行ってもデカフェが置いてあったので、そこは羨ましいなあと思います。</p>
+
+<p>その頃から体調管理を気をつけるようになって、特に睡眠の勉強をしました。
+寝る3時間前から食べないとか、2時間前にお風呂はいるとかそういうやつです。
+朝も奥さんが家を出る8時前にできるだけ合わせるようになりました。
+これで生活リズムはだいぶ改善されて、この半年くらいは風邪を引かずに済んでいます。
+これは個人的にはすごいことで、こんなに長い間風邪を引かないのは久しぶりです。
+眠い日も減りました。</p>
+
+<p>去年は旅行とか外食とかそういうイベント事で後手後手になりがちだったのがよくなかったと反省していて、今年の標語は「先手先手で動く」にしました。
+ちなみに新年早々、初詣どうするかですでに後手後手になってもう失敗してるんですが、今日からの標語ということにしました。
+私生活の細かい目標は以下のとおり。</p>
+
+<ul>
+  <li>筋肉・体力をつける、手の冷え性を治す</li>
+  <li>5回旅行行く、うち1回は海外に行く</li>
+  <li>50冊本読む（漫画ラノベ除く）、記録をつける</li>
+  <li>20回ブログを書く</li>
+  <li>1つ何か作って公開する</li>
+</ul>
+
+<p>今年も一年よろしくお願いいたします。</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>ミントも心拍数を上げるそうです。これは知らなかった。<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+</feed>
